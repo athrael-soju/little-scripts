@@ -1,0 +1,6 @@
+torch
+clip @ git+https://github.com/openai/CLIP.git
+clipcap @ git+https://github.com/rmokady/CLIP_prefix_caption.git 
+transformers
+Pillow
+requests
