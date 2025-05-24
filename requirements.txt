@@ -1,2 +1,5 @@
-# Root requirements.txt
-# Install per-project dependencies from their respective requirements.txt files.
+# Common dependencies for all packages
+click>=8.0.0      # CLI framework
+requests>=2.28.0  # HTTP library
+pydantic>=2.0.0   # Data validation
+loguru>=0.7.0     # Logging 
