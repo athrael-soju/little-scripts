@@ -1,6 +1,8 @@
 # Little Scripts
 
-![Little Scripts Logo](little-scripts.svg)
+<div align="center">
+  <img src="little-scripts.jpg" alt="Little Scripts Logo" width="600">
+</div>
 
 ## About
 
