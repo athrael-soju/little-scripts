@@ -7,6 +7,6 @@ dependencies = [
     "requests",
     "pillow",
     "transformers",
-    "clipcap",
+    "clipcap @ git+https://github.com/michelecafagna26/CLIPCap.git",
     "clip @ git+https://github.com/openai/CLIP.git",
 ] 

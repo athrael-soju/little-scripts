@@ -8,6 +8,7 @@ of CLIP and GPT-2 models.
 
 import os
 import sys
+import argparse
 from pathlib import Path
 import torch
 import clip
@@ -22,17 +23,101 @@ except ImportError:
     print("pip install clipcap")
     sys.exit(1)
 
+def download_model(model_path, model_url):
+    """Download the ClipCap model if it doesn't exist."""
+    # Create models directory if it doesn't exist
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    
+    print(f"Downloading model from {model_url}...")
+    print("This may take a few minutes...")
+    
+    try:
+        response = requests.get(model_url, stream=True)
+        response.raise_for_status()
+        
+        # Get file size for progress tracking
+        total_size = int(response.headers.get('content-length', 0))
+        
+        with open(model_path, 'wb') as f:
+            downloaded = 0
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        print(f"\rProgress: {progress:.1f}%", end='', flush=True)
+        
+        print(f"\n✓ Model downloaded successfully to {model_path}")
+        
+    except requests.RequestException as e:
+        print(f"\nError downloading model: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\nError saving model: {e}")
+        sys.exit(1)
+
+def load_image(image_input):
+    """Load image from either a local file path or URL."""
+    try:
+        # Check if input is a URL
+        if image_input.startswith(('http://', 'https://')):
+            print(f"Downloading image from: {image_input}")
+            response = requests.get(image_input, stream=True, timeout=30)
+            response.raise_for_status()
+            image = Image.open(response.raw).convert('RGB')
+            print("✓ Image downloaded and loaded")
+        else:
+            # Local file path
+            image_path = Path(image_input)
+            if not image_path.exists():
+                raise FileNotFoundError(f"Image file not found: {image_input}")
+            
+            print(f"Loading local image: {image_input}")
+            image = Image.open(image_path).convert('RGB')
+            print("✓ Local image loaded")
+        
+        return image
+        
+    except requests.RequestException as e:
+        print(f"Error downloading image: {e}")
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error loading image: {e}")
+        sys.exit(1)
+
 def main():
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description='Generate captions for images using ClipCap')
+    parser.add_argument('image', nargs='?', 
+                       help='Path to local image file or URL (if not provided, uses default example)')
+    parser.add_argument('--model-path', default='models/pytorch_model.pt',
+                       help='Path to the ClipCap model file (default: models/pytorch_model.pt)')
+    
+    args = parser.parse_args()
+    
     # Configuration
-    model_path = "clipcap-base-captioning-ft-hl-narratives/pytorch_model.pt"
-    img_url = 'images/atlas.jpg'
+    model_path = args.model_path
+    model_url = "https://huggingface.co/michelecafagna26/clipcap-base-captioning-ft-hl-actions/resolve/main/pytorch_model.pt?download=true"
+    
+    # Use provided image or default example
+    if args.image:
+        image_input = args.image
+    else:
+        # Default example image
+        image_input = 'https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png'
+    
     prefix_length = 10
     
-    # Check if model exists
+    # Download model if it doesn't exist
     if not os.path.exists(model_path):
-        print(f"Error: Model file not found at {model_path}")
-        print("Please download the ClipCap model and update the model_path variable.")
-        sys.exit(1)
+        print(f"Model file not found at {model_path}")
+        download_model(model_path, model_url)
+    else:
+        print(f"✓ Model file found at {model_path}")
     
     print("Loading models...")
     
@@ -62,11 +147,7 @@ def main():
     
     try:
         # Load and process image
-        print(f"Downloading image from: {img_url}")
-        response = requests.get(img_url, stream=True, timeout=30)
-        response.raise_for_status()
-        raw_image = Image.open(response.raw).convert('RGB')
-        print("✓ Image loaded and converted")
+        raw_image = load_image(image_input)
         
         # Extract image features
         print("Extracting image features...")
@@ -81,9 +162,6 @@ def main():
         
         print(f"\nGenerated Caption: {caption}")
         
-    except requests.RequestException as e:
-        print(f"Error downloading image: {e}")
-        sys.exit(1)
     except Exception as e:
         print(f"Error processing image or generating caption: {e}")
         sys.exit(1)
