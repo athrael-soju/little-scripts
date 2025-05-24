@@ -1,7 +1,0 @@
-torch
-transformers==4.44.0
-pillow
-einops
-open_clip_torch
-timm
-
