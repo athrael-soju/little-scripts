@@ -1,7 +1,7 @@
 # Little Scripts
 
 <div align="center">
-  <img src="little-scripts.jpg" alt="Little Scripts Logo" width="600">
+  <img src="little-scripts.svg" alt="Little Scripts Logo" width="600">
 </div>
 
 ## About
