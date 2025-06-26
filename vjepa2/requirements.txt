@@ -2,3 +2,4 @@ numpy
 pillow
 decord
 requests
+accelerate
