@@ -1,0 +1,4 @@
+numpy
+pillow
+decord
+requests
