@@ -12,7 +12,7 @@ A monorepo containing various utility scripts, tools, and applications for devel
 
 ### 🤖 [ColPali(ColNomic) + Qdrant + MinIO Retrieval System](./colnomic_qdrant_rag/)
 
-A powerful multimodal document retrieval system built with **ColNomic** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis.
+A powerful multimodal document retrieval system built with **ColNomic** (Using Late Interaction) and binary quantization for efficient document search and analysis.
 
 **Key Features:**
 - 🔍 **Natural Language Search**: Query documents using plain English
