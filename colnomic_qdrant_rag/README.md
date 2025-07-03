@@ -45,7 +45,7 @@ This application provides an intelligent document retrieval system that can:
 
 ### Prerequisites
 
-- **Python 3.8+**
+- **Python 3.10+**
 - **CUDA-capable GPU** (recommended for optimal performance)
 - **Docker & Docker Compose** (for infrastructure services)
 - **Poppler** (for PDF processing):
