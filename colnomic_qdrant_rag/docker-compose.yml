@@ -1,0 +1,33 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - 6333:6333
+    mem_limit: 8g
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__STORAGE__PATH=/qdrant/storage
+      - QDRANT__SERVICE__GRPC_PORT=6333
+      - QDRANT__SERVICE__HTTP_PORT=6333
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - 9000:9000      # MinIO API
+      - 9001:9001      # MinIO Console (Dashboard)
+    volumes:
+      - minio_data:/data
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+
+
+networks:
+  colpali-network:
+    driver: bridge
+
+volumes:
+  qdrant_data:
+  minio_data:
