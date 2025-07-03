@@ -37,8 +37,7 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 
 ### Prerequisites
 
-- **Python 3.8+**
-- **Git**
+- **Python 3.10+**
 - **Docker & Docker Compose** (for projects requiring infrastructure)
 
 ### Getting Started
