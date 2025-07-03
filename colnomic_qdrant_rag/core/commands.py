@@ -4,15 +4,15 @@ from pathlib import Path
 
 import config
 from datasets import load_dataset
+from handlers.minio import MinioHandler
+from handlers.model import ModelHandler
+from handlers.openai import OpenAIHandler
+from handlers.qdrant import QdrantHandler
 from pdf2image import convert_from_path
 from pypdf import PdfReader
+from utils import Colors, colored_print, validate_file_path, validate_query
 
-from handlers.model import ModelHandler
-from handlers.qdrant import QdrantHandler
-from handlers.openai import OpenAIHandler
-from handlers.minio import MinioHandler
 from .pipeline import RetrievalPipeline
-from utils import colored_print, Colors, validate_query, validate_file_path
 
 
 def setup_pipeline(include_openai=False):
