@@ -84,7 +84,7 @@ Create a `.env` file in the project root:
 ```env
 # Optional: OpenAI API key for conversational features
 OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_MODEL=gpt-4o-mini
+OPENAI_MODEL=gpt-4.1-mini
 
 # MinIO Configuration (defaults work with Docker Compose)
 MINIO_ENDPOINT=localhost:9000
@@ -184,7 +184,7 @@ BATCH_SIZE = 4            # Batch size for indexing
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `OPENAI_API_KEY` | OpenAI API key for conversational features | None |
-| `OPENAI_MODEL` | OpenAI model to use | `gpt-4o-mini` |
+| `OPENAI_MODEL` | OpenAI model to use | `gpt-4.1-mini` |
 | `QDRANT_URL` | Qdrant database URL | `http://localhost:6333` |
 | `MINIO_ENDPOINT` | MinIO server endpoint | `localhost:9000` |
 
