@@ -1,4 +1,4 @@
-# Little Scripts - Monorepo
+# Little Scripts
 
 <div align="center">
   <img src="little-scripts.svg" alt="Little Scripts Logo" width="600">
