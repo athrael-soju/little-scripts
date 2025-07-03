@@ -1,4 +1,4 @@
-# ColPali + Qdrant (With Binary Quantization) RAG
+# ColPali + Qdrant + MinIO RAG
 
 🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis. 
 
