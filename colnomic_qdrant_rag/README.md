@@ -1,6 +1,8 @@
 # ColPali + Qdrant (With Binary Quantization) RAG
 
-🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis.
+🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis. 
+
+For a more `High Level` read, have a look at [Athrael.net](http://localhost:3000/blog/little-scripts/colnomic-qdrant-rag) Blog Post.
 
 ## 📖 Overview
 
