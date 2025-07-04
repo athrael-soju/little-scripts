@@ -1,6 +1,6 @@
 # Core ML and Computer Vision
-# torch # For newer Nvidia GPUs (e.g. RTX 5090) use uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
-# torchvision
+torch # For newer Nvidia GPUs (e.g. RTX 5090) use uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+torchvision
 
 git+https://github.com/huggingface/transformers.git
 pillow
