@@ -52,7 +52,24 @@ def visualize_mask(image, segmentation_mask):
 
     # Segmentation mask - convert tensor to numpy
     mask_np = tensor_to_numpy(segmentation_mask)
-    ax.imshow(mask_np, cmap="tab20")
+
+    if mask_np.max() > 0:
+        ax.imshow(mask_np, cmap="tab20")
+    else:
+        # If no segments, show a blank image with text
+        ax.imshow(np.zeros_like(mask_np), cmap="gray")
+        ax.text(
+            0.5,
+            0.5,
+            "No segments detected",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=16,
+            color="red",
+            weight="bold",
+        )
+
     ax.axis("off")
 
     plt.tight_layout()
@@ -103,8 +120,11 @@ def visualize_contours(image, segmentation_mask):
     # Find unique segments
     unique_segments = np.unique(mask_np)
 
+    # Create a colormap for distinct colors
+    colors = plt.cm.tab20(np.linspace(0, 1, len(unique_segments)))
+
     # Draw contours for each segment
-    for segment_id in unique_segments:
+    for i, segment_id in enumerate(unique_segments):
         if segment_id == 0:  # Skip background
             continue
 
@@ -116,10 +136,17 @@ def visualize_contours(image, segmentation_mask):
             binary_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
 
-        # Draw contours
+        # Draw contours with unique color for each segment
         for contour in contours:
-            contour = contour.reshape(-1, 2)
-            ax.plot(contour[:, 0], contour[:, 1], linewidth=2, alpha=0.8)
+            if len(contour) > 2:  # Only draw if contour has enough points
+                contour = contour.reshape(-1, 2)
+                ax.plot(
+                    contour[:, 0],
+                    contour[:, 1],
+                    color=colors[i % len(colors)],
+                    linewidth=2,
+                    alpha=0.8,
+                )
 
     ax.axis("off")
 
@@ -141,21 +168,41 @@ def visualize_instance_masks(image, segmentation_mask):
 
     # Get top 9 segments by size (excluding background)
     non_bg_indices = unique_segments != 0
-    top_segments = unique_segments[non_bg_indices][
-        np.argsort(counts[non_bg_indices])[-9:]
-    ]
+    if np.any(non_bg_indices):
+        top_segments = unique_segments[non_bg_indices][
+            np.argsort(counts[non_bg_indices])[-9:]
+        ]
+        top_counts = counts[non_bg_indices][np.argsort(counts[non_bg_indices])[-9:]]
+    else:
+        top_segments = []
+        top_counts = []
 
     fig, axes = plt.subplots(3, 3, figsize=(15, 15))
     axes = axes.flatten()
 
-    for i, segment_id in enumerate(top_segments):
+    for i, (segment_id, count) in enumerate(zip(top_segments, top_counts)):
         binary_mask = (mask_np == segment_id).astype(float)
         axes[i].imshow(binary_mask, cmap="Blues")
+        axes[i].set_title(
+            f"Segment {segment_id}\nPixels: {count}", fontsize=10, weight="bold"
+        )
         axes[i].axis("off")
 
-    # Fill empty subplots
+    # Fill empty subplots with informative text
     for i in range(len(top_segments), 9):
         axes[i].axis("off")
+        if i == 0 and len(top_segments) == 0:
+            axes[i].text(
+                0.5,
+                0.5,
+                "No segments\ndetected",
+                transform=axes[i].transAxes,
+                ha="center",
+                va="center",
+                fontsize=12,
+                color="red",
+                weight="bold",
+            )
 
     plt.tight_layout()
 
@@ -178,10 +225,28 @@ def visualize_edges(image, segmentation_mask):
     ax.imshow(image)
 
     # Edge detection on mask
-    edges = cv2.Canny((mask_np * 255 / mask_np.max()).astype(np.uint8), 50, 150)
+    if mask_np.max() > 0:  # Check if mask has any segments
+        edges = cv2.Canny((mask_np * 255 / mask_np.max()).astype(np.uint8), 50, 150)
 
-    # Overlay edges in yellow
-    ax.contour(edges, colors="yellow", linewidths=3)
+        # Create a colored edge overlay
+        edge_overlay = np.zeros((*edges.shape, 4))  # RGBA
+        edge_overlay[edges > 0] = [1, 1, 0, 1]  # Yellow with full alpha
+
+        # Overlay edges
+        ax.imshow(edge_overlay)
+    else:
+        # If no segments, just show the original image
+        ax.text(
+            0.5,
+            0.5,
+            "No segments detected",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=16,
+            color="red",
+            weight="bold",
+        )
 
     ax.axis("off")
 
@@ -207,14 +272,38 @@ def visualize_segment_isolation(image, segmentation_mask):
         largest_segment = unique_segments[non_bg_indices][
             np.argmax(counts[non_bg_indices])
         ]
+        largest_count = counts[non_bg_indices][np.argmax(counts[non_bg_indices])]
     else:
         largest_segment = unique_segments[np.argmax(counts)]
+        largest_count = counts[np.argmax(counts)]
 
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 
     # Isolated segment
     isolated_mask = (mask_np == largest_segment).astype(float)
-    ax.imshow(isolated_mask, cmap="Reds")
+
+    if isolated_mask.max() > 0:
+        ax.imshow(isolated_mask, cmap="Reds")
+        ax.set_title(
+            f"Largest Segment (ID: {largest_segment}, Pixels: {largest_count})",
+            fontsize=14,
+            weight="bold",
+            pad=20,
+        )
+    else:
+        ax.imshow(np.zeros_like(isolated_mask), cmap="gray")
+        ax.text(
+            0.5,
+            0.5,
+            "No segments detected",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=16,
+            color="red",
+            weight="bold",
+        )
+
     ax.axis("off")
 
     plt.tight_layout()
@@ -232,18 +321,35 @@ def visualize_heatmap(image, segmentation_mask):
     """Show boundary density heatmap"""
     mask_np = tensor_to_numpy(segmentation_mask)
 
-    # Calculate gradient magnitude for boundary detection
-    gradient_magnitude = np.gradient(mask_np.astype(float))
-    gradient_magnitude = np.sqrt(
-        gradient_magnitude[0] ** 2 + gradient_magnitude[1] ** 2
-    )
-
     fig, ax = plt.subplots(1, 1, figsize=(12, 8))
 
-    # Boundary heatmap
-    im = ax.imshow(gradient_magnitude, cmap="hot")
-    ax.axis("off")
-    plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    if mask_np.max() > 0:
+        # Calculate gradient magnitude for boundary detection
+        gradient_magnitude = np.gradient(mask_np.astype(float))
+        gradient_magnitude = np.sqrt(
+            gradient_magnitude[0] ** 2 + gradient_magnitude[1] ** 2
+        )
+
+        # Boundary heatmap
+        im = ax.imshow(gradient_magnitude, cmap="hot")
+        ax.set_title("Boundary Density Heatmap", fontsize=14, weight="bold", pad=20)
+        ax.axis("off")
+        plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="Gradient Magnitude")
+    else:
+        # If no segments, show a blank heatmap
+        ax.imshow(np.zeros_like(mask_np), cmap="hot")
+        ax.text(
+            0.5,
+            0.5,
+            "No segments detected",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=16,
+            color="red",
+            weight="bold",
+        )
+        ax.axis("off")
 
     plt.tight_layout()
 
@@ -261,24 +367,52 @@ def create_visualization(image, viz_type):
     if image is None:
         return None
 
-    # Run inference
-    prediction = run_inference(image)
-    segmentation_mask = prediction["segmentation"]
+    try:
+        # Run inference
+        prediction = run_inference(image)
+        segmentation_mask = prediction["segmentation"]
 
-    if viz_type == "Mask":
-        return visualize_mask(image, segmentation_mask)
-    elif viz_type == "Overlay":
-        return visualize_overlay(image, segmentation_mask)
-    elif viz_type == "Contours":
-        return visualize_contours(image, segmentation_mask)
-    elif viz_type == "Instance Masks":
-        return visualize_instance_masks(image, segmentation_mask)
-    elif viz_type == "Edge Detection":
-        return visualize_edges(image, segmentation_mask)
-    elif viz_type == "Segment Isolation":
-        return visualize_segment_isolation(image, segmentation_mask)
-    elif viz_type == "Heatmap":
-        return visualize_heatmap(image, segmentation_mask)
+        if viz_type == "Mask":
+            return visualize_mask(image, segmentation_mask)
+        elif viz_type == "Overlay":
+            return visualize_overlay(image, segmentation_mask)
+        elif viz_type == "Contours":
+            return visualize_contours(image, segmentation_mask)
+        elif viz_type == "Instance Masks":
+            return visualize_instance_masks(image, segmentation_mask)
+        elif viz_type == "Edge Detection":
+            return visualize_edges(image, segmentation_mask)
+        elif viz_type == "Segment Isolation":
+            return visualize_segment_isolation(image, segmentation_mask)
+        elif viz_type == "Heatmap":
+            return visualize_heatmap(image, segmentation_mask)
+        else:
+            # Default fallback
+            return visualize_mask(image, segmentation_mask)
+
+    except Exception as e:
+        print(f"Error in visualization: {e}")
+        # Return a simple error visualization
+        fig, ax = plt.subplots(1, 1, figsize=(12, 8))
+        ax.text(
+            0.5,
+            0.5,
+            f"Error during processing:\n{str(e)}",
+            transform=ax.transAxes,
+            ha="center",
+            va="center",
+            fontsize=12,
+            color="red",
+            weight="bold",
+        )
+        ax.axis("off")
+
+        buf = io.BytesIO()
+        plt.savefig(buf, format="png", bbox_inches="tight", dpi=150)
+        buf.seek(0)
+        plt.close()
+
+        return Image.open(buf)
 
 
 def load_sample_image(img_path):

@@ -6,16 +6,17 @@ A Gradio-based web application for interactive panoptic segmentation using the *
 
 - **Interactive Web Interface**: User-friendly Gradio interface for uploading and processing images
 - **Multiple Visualization Types**:
-  - Segmentation mask with color-coded segments
-  - Overlay visualization on original image
-  - Contour detection and boundary analysis
-  - Individual instance masks in grid layout
-  - Edge detection highlighting
-  - Segment isolation for detailed analysis
-  - Boundary density heatmap visualization
+  - Segmentation mask with color-coded segments (with error handling for empty masks)
+  - Overlay visualization on original image with transparency control
+  - Contour detection with distinct color coding for each segment
+  - Individual instance masks in grid layout with segment statistics
+  - Edge detection with improved boundary highlighting
+  - Segment isolation showing largest segment with detailed information
+  - Boundary density heatmap with gradient magnitude visualization
 - **Real-time Processing**: Fast inference with CUDA support and proper GPU memory handling
 - **Sample Images**: Built-in sample images with intuitive button selection
 - **Detailed Analytics**: Comprehensive segment statistics and visual analysis
+- **Enhanced Visualizations**: Improved color coding, titles, and statistical information for better analysis
 
 ## 🧠 Model
 
@@ -99,13 +100,13 @@ This application uses the **EOMT (Encoder-only Mask Transformer)** model, as pre
 3. **Upload an image** or select from sample images using the clickable buttons
 
 4. **Choose visualization type**:
-   - **Mask**: Color-coded segmentation mask
-   - **Overlay**: Transparent mask overlay on original image
-   - **Contours**: Segment boundaries outlined on original image
-   - **Instance Masks**: Individual instance masks in a 3×3 grid (top 9 by size)
-   - **Edge Detection**: Segmentation boundaries highlighted in yellow
-   - **Segment Isolation**: Largest segment isolated
-   - **Heatmap**: Boundary density visualization with color mapping
+   - **Mask**: Color-coded segmentation mask with error handling for empty results
+   - **Overlay**: Transparent mask overlay on original image with optimized transparency
+   - **Contours**: Segment boundaries with distinct colors for each segment
+   - **Instance Masks**: Individual instance masks in a 3×3 grid showing segment IDs and pixel counts
+   - **Edge Detection**: Improved boundary highlighting with RGBA overlay technique
+   - **Segment Isolation**: Largest segment isolated with detailed statistics
+   - **Heatmap**: Boundary density visualization with gradient magnitude and proper labeling
 
 5. **View results** with interactive segment analysis and high-quality visualizations
 
@@ -123,13 +124,13 @@ The application automatically downloads the EOMT model on first run. Model files
 
 ### Visualization Types
 
-1. **Mask View**: Clean segmentation mask with color-coded segments using matplotlib's tab20 colormap
-2. **Overlay View**: Weighted combination of original image and segmentation mask
-3. **Contours View**: Precise segment boundaries overlaid on original image using OpenCV
-4. **Instance Masks View**: Grid layout showing individual segments for detailed inspection
-5. **Edge Detection View**: Boundary detection with Canny edge detection algorithms
-6. **Segment Isolation View**: Focus on the largest segment in isolation
-7. **Heatmap View**: Boundary density analysis with gradient magnitude visualization
+1. **Mask View**: Clean segmentation mask with color-coded segments using matplotlib's tab20 colormap, includes error handling for empty masks
+2. **Overlay View**: Weighted combination of original image and segmentation mask with optimized transparency
+3. **Contours View**: Precise segment boundaries with distinct colors for each segment using OpenCV and matplotlib colormaps
+4. **Instance Masks View**: Grid layout showing individual segments with segment IDs and pixel counts for detailed inspection
+5. **Edge Detection View**: Enhanced boundary detection using RGBA overlay technique with Canny edge detection
+6. **Segment Isolation View**: Focus on the largest segment with detailed statistics (segment ID and pixel count)
+7. **Heatmap View**: Boundary density analysis with gradient magnitude visualization and proper colorbar labeling
 
 ### Interactive Features
 
@@ -137,6 +138,7 @@ The application automatically downloads the EOMT model on first run. Model files
 - **Upload Support**: Drag-and-drop or click to upload custom images
 - **Real-time Processing**: Fast inference with proper GPU memory management
 - **High-Quality Output**: All visualizations rendered at 150 DPI for crisp results
+- **Enhanced Information**: Detailed segment statistics, pixel counts, and gradient analysis
 
 ## 🎨 Visualization Examples
 
@@ -154,7 +156,7 @@ The application provides multiple ways to visualize panoptic segmentation result
 ### Common Issues
 
 1. **CUDA Tensor Errors**:
-   - The app automatically handles CUDA tensor to CPU conversion
+   - The app automatically handles CUDA tensor to CPU conversion with robust error handling
    - Ensure proper PyTorch installation with CUDA support
    - Check GPU memory availability
 
@@ -187,16 +189,6 @@ eomt_panoptic_seg/
 ├── requirements.txt       # Python dependencies
 └── README.md              # This file
 ```
-
-## 🔮 Future Enhancements
-
-- [ ] Batch processing support
-- [ ] Export functionality for masks
-- [ ] Custom color schemes
-- [ ] Performance optimization
-- [ ] Additional model support
-- [ ] Video processing capabilities
-- [ ] API endpoint for programmatic access
 
 ## 📄 License
 
