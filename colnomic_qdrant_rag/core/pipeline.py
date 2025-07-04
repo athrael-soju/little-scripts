@@ -1,8 +1,9 @@
 import io
 import itertools
-from tqdm import tqdm
+from typing import List, Optional
+
 from qdrant_client.http import models
-from typing import Optional, List
+from tqdm import tqdm
 
 
 def batch_iterable(iterable, batch_size):

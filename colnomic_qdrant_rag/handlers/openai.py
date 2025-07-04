@@ -1,10 +1,10 @@
 import base64
 import io
-import requests
-import config
-
-from openai import OpenAI
 from typing import List, Optional
+
+import config
+import requests
+from openai import OpenAI
 from PIL import Image
 
 
