@@ -11,8 +11,6 @@ services:
       - QDRANT__STORAGE__PATH=/qdrant/storage
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
-
-
   minio:
     image: minio/minio:latest
     ports:
