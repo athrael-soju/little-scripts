@@ -54,7 +54,7 @@ This application uses the **EOMT (Encoder-only Mask Transformer)** model, as pre
 
    **For standard setup:**
    ```bash
-  uv pip install -r requirements.txt
+   uv pip install -r requirements.txt
    ```
 
    **For newer NVIDIA GPUs (e.g., RTX 5090):**
@@ -63,7 +63,7 @@ This application uses the **EOMT (Encoder-only Mask Transformer)** model, as pre
    uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 
    # Then install remaining dependencies
-  uv pip install -r requirements.txt
+   uv pip install -r requirements.txt
    ```
 
 3. **Run the application**:
