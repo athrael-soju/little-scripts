@@ -12,25 +12,6 @@ services:
       - QDRANT__SERVICE__GRPC_PORT=6334
       - QDRANT__SERVICE__HTTP_PORT=6333
 
-  qdrant-gpu:
-    image: qdrant/qdrant:gpu-nvidia-latest
-    profiles: ["gpu"]
-    ports:
-      - 6333:6333  # HTTP API
-      - 6334:6334  # gRPC API
-    volumes:
-      - qdrant_data:/qdrant/storage
-    environment:
-      - QDRANT__STORAGE__PATH=/qdrant/storage
-      - QDRANT__SERVICE__GRPC_PORT=6334
-      - QDRANT__SERVICE__HTTP_PORT=6333
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
 
   minio:
     image: minio/minio:latest

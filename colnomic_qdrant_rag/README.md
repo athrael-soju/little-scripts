@@ -105,20 +105,12 @@ uv pip install -r requirements.txt
 ### 2. Start Infrastructure Services
 
 ```bash
-# Start Qdrant (CPU version) and MinIO services
-docker-compose --profile cpu up -d
-
-# OR: Start Qdrant (GPU version) and MinIO services (requires NVIDIA GPU)
-docker-compose --profile gpu up -d
+# Start Qdrant and MinIO services
+docker-compose up -d
 
 # Verify services are running
 docker-compose ps
 ```
-
-> **Note**: The GPU version requires:
-> - NVIDIA GPU with CUDA support
-> - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed
-> - Docker configured to use GPU resources
 
 ### 3. Configure Environment
 
@@ -132,7 +124,6 @@ OPENAI_MODEL=gpt-4.1-mini
 # MinIO Configuration (defaults work with Docker Compose)
 MINIO_ENDPOINT=localhost:9000
 MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin
 ```
 
 ### 4. Run the Application
@@ -377,6 +368,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **ColPali Team** for the innovative multimodal retrieval approach
 - **Qdrant** for high-performance vector search capabilities
 - **Nomic AI** for the excellent embedding models
+- **OpenAI** for conversational AI capabilities
+
+## 📚 Resources
+
+- [ColPali Paper](https://arxiv.org/abs/2407.01449)
+- [Qdrant Documentation](https://qdrant.tech/documentation/)
+- [MinIO Documentation](https://min.io/docs/)
+- [Binary Quantization Guide](https://qdrant.tech/documentation/guides/quantization/)
+
+---
+
+**Made with ❤️ for efficient document retrieval and analysis**
+
 - **OpenAI** for conversational AI capabilities
 
 ## 📚 Resources
