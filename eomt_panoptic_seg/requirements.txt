@@ -1,0 +1,21 @@
+# Core ML and Computer Vision
+# torch # For newer Nvidia GPUs (e.g. RTX 5090) use uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+# torchvision
+
+git+https://github.com/huggingface/transformers.git
+pillow
+numpy
+opencv-python
+scipy
+
+# Gradio web interface
+gradio
+
+# Visualization
+matplotlib
+
+# HTTP requests
+requests
+
+# Pre-trained model
+# This will download the model: tue-mps/coco_panoptic_eomt_large_640

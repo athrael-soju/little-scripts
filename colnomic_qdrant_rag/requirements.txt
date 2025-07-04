@@ -24,6 +24,7 @@ requests
 python-dotenv
 pypdf
 ruff
+scipy
 
 # PDF to Image Conversion
 # Note: Requires poppler to be installed on the system.

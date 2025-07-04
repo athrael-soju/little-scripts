@@ -29,6 +29,24 @@ A powerful multimodal document retrieval system built with **ColNomic** (Using L
 
 ---
 
+### 🖼️ [EOMT Panoptic Segmentation App](./eomt_panoptic_seg/)
+
+An interactive web application for panoptic segmentation using the **EOMT (Encoder-only Mask Transformer)** model - a minimalist approach that repurposes a plain Vision Transformer for image segmentation, as presented in the CVPR 2025 paper ["Your ViT is Secretly an Image Segmentation Model"](https://www.tue-mps.org/eomt/).
+
+**Key Features:**
+- 🎨 **Interactive Web Interface**: User-friendly Gradio interface for image upload and processing
+- 🔍 **Multiple Visualization Types**: Original+Mask, Overlay, Contours, Segment Info, and All Views
+- 🧠 **EOMT Model**: Plain ViT-based segmentation with the `tue-mps/coco_panoptic_eomt_large_640` model
+- 📊 **Detailed Analytics**: Segment statistics and color-coded visualization
+- 🖼️ **Sample Images**: Built-in test images for immediate experimentation
+- ⚡ **Real-time Processing**: Up to 4× faster than complex methods while maintaining accuracy
+
+**Tech Stack:** Python, PyTorch, Transformers, Gradio, OpenCV, Matplotlib
+
+[📖 View Full Documentation](./eomt_panoptic_seg/README.md)
+
+---
+
 ### 🔧 Future Projects
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
@@ -59,25 +77,8 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 
 ```
 little-scripts/
-├── README.md                      # This file - monorepo overview
-├── little-scripts.jpg             # Repository logo
-├── little-scripts.svg             # Repository logo (SVG)
-├── colnomic_qdrant_rag/           # ColPali RAG System
-│   ├── README.md                  # Project documentation
-│   ├── main.py                    # Application entry point
-│   ├── config.py                  # Configuration settings
-│   ├── requirements.txt           # Python dependencies
-│   ├── docker-compose.yml         # Infrastructure services
-│   ├── core/                      # Core application logic
-│   │   ├── cli.py                 # Command-line interface
-│   │   ├── commands.py            # CLI commands
-│   │   └── pipeline.py            # Processing pipeline
-│   ├── handlers/                  # Service handlers
-│   │   ├── model.py               # AI model handler
-│   │   ├── qdrant.py              # Vector database handler
-│   │   ├── minio.py               # Object storage handler
-│   │   └── openai.py              # OpenAI integration
-│   └── utils.py                   # Utility functions
+├── colnomic_qdrant_rag/           # Col Based RAG System
+├── eomt_panoptic_seg/             # EOMT Panoptic Segmentation App
 └── [future-projects]/             # Additional projects will be added here
 ```
 
@@ -113,10 +114,14 @@ Open source - feel free to use and modify as needed.
 
 - **ai-tools**
 - **automation**
+- **computer-vision**
 - **document-retrieval**
+- **gradio**
 - **machine-learning**
+- **panoptic-segmentation**
 - **python**
 - **rag-system**
+- **transformers**
 - **utilities**
 - **vector-database**
 
