@@ -1,6 +1,6 @@
 # Beautiful RAG with ColNomic + Qdrant + MinIO
 
-🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis. 
+🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis.
 
 For a more detailed read, have a look at the [Athrael.net Blog Post](https://athrael.net/blog/little-scripts/colnomic-qdrant-rag).
 
@@ -380,4 +380,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for efficient document retrieval and analysis** 
+**Made with ❤️ for efficient document retrieval and analysis**

@@ -124,4 +124,4 @@ Open source - feel free to use and modify as needed.
 
 <div align="center">
   <p>⭐ If you find this repository useful, please consider giving it a star!</p>
-</div> 
+</div>
