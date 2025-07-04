@@ -1,6 +1,6 @@
 # EOMT Panoptic Segmentation App
 
-A Gradio-based web application for interactive panoptic segmentation using the **EOMT (Encoder-only Mask Transformer)** model - a minimalist approach that repurposes a plain Vision Transformer (ViT) for image segmentation.
+A [Gradio-based web application](https://huggingface.co/spaces/Athrael/eomt) for interactive panoptic segmentation using the **EOMT (Encoder-only Mask Transformer)** model - a minimalist approach that repurposes a plain Vision Transformer (ViT) for image segmentation.
 
 ## 🚀 Features
 
