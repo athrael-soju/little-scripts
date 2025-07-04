@@ -1,8 +1,8 @@
-# ColPali + Qdrant + MinIO RAG
+# Beautiful RAG with ColNomic + Qdrant + MinIO
 
 🚀 A powerful multimodal document retrieval system built with **ColPali** (Column-based Patch Interaction) and binary quantization for efficient document search and analysis. 
 
-For a more `High Level` read, have a look at [Athrael.net](http://localhost:3000/blog/little-scripts/colnomic-qdrant-rag) Blog Post.
+For a more detailed read, have a look at the [Athrael.net Blog Post](https://athrael.net/blog/little-scripts/colnomic-qdrant-rag).
 
 ## 📖 Overview
 
@@ -25,16 +25,9 @@ This application provides an intelligent document retrieval system that can:
 
 ## 🏗️ Architecture
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌──────────────────┐
-│   CLI Interface │────│  Core Pipeline  │────│      Handlers    │
-│                 │    │                 │    │                  │
-│ • Interactive   │    │ • Document      │    │ • Model (ColPali)│
-│ • Commands      │    │   Processing    │    │ • Qdrant (Vector)│
-│ • Query Modes   │    │ • Indexing      │    │ • MinIO (Storage)│
-└─────────────────┘    │ • Search        │    │ • OpenAI (AI)    │
-                       └─────────────────┘    └──────────────────┘
-```
+<div align="center">
+  <img src="architecture.svg" alt="Architecture diagram" width="75%" />
+</div>
 
 ### Components
 
@@ -42,6 +35,46 @@ This application provides an intelligent document retrieval system that can:
 - **Qdrant Vector Database**: High-performance vector search with binary quantization
 - **MinIO Object Storage**: Scalable image and document storage
 - **OpenAI Integration**: Enhanced conversational analysis capabilities
+
+## 🎯 Why Colnomic?
+
+### State-of-the-Art Performance
+
+With an impressive **61.2 NDCG@5** on the Vidore-v2 benchmark, Colnomic Embed Multimodal 3B represents a significant leap forward in multimodal document retrieval. Here's why it's the perfect choice for this RAG implementation:
+
+#### Performance Benchmarks
+
+| Model                            | Avg.     | ESG Restaurant Human | Econ Macro Multi. | AXA Multi. | MIT Bio  | ESG Restaurant Synth. |
+| -------------------------------- | -------- | -------------------- | ----------------- | ---------- | -------- | --------------------- |
+| **ColNomic Embed Multimodal 7B** | **62.7** | **73.9**             | **54.7**          | **61.3**   | **66.1** | **57.3**              |
+| **ColNomic Embed Multimodal 3B** | **61.2** | **65.8**             | **55.4**          | **61.0**   | **63.5** | **56.6**              |
+| Nomic Embed Multimodal 7B        | 59.7     | 65.7                 | 57.7              | 59.3       | 64.0     | 49.2                  |
+| Nomic Embed Multimodal 3B        | 58.8     | 59.8                 | 57.5              | 58.8       | 62.5     | 49.4                  |
+| Voyage Multimodal 3              | 55.0     | 56.1                 | 55.0              | 59.5       | 56.4     | 47.2                  |
+
+*ColNomic 3B achieves remarkable performance at 61.2 NDCG@5, positioning it as the second-best model overall while being significantly more efficient than its 7B counterpart.*
+
+### Unified Text-Image Processing
+
+Unlike traditional RAG systems that require complex OCR preprocessing and separate text extraction pipelines, Colnomic **directly encodes interleaved text and images** without any preprocessing. This means:
+
+- **No more lossy OCR conversion steps** - preserves original document fidelity
+- **Preserved visual context and layout information** - understands document structure
+- **Faster processing** by eliminating preprocessing bottlenecks
+- **More complete information capture** from documents
+
+### Perfect for Visual Documents
+
+Colnomic excels at handling the types of documents that challenge traditional text-only systems:
+
+- **Research papers** with equations, diagrams, and complex tables
+- **Technical documentation** with code blocks, flowcharts, and screenshots
+- **Financial reports** with charts, graphs, and numerical data
+- **Product catalogs** with images, specifications, and visual elements
+
+### Open and Accessible
+
+As an **open-weights** model with only 3B parameters, Colnomic strikes the perfect balance between performance and accessibility. It's powerful enough for production use while being lightweight enough to run on consumer hardware.
 
 ## 🚀 Quick Start
 

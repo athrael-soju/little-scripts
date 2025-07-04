@@ -1,7 +1,9 @@
 import argparse
 import sys
-from .commands import setup_pipeline, ask, upload, clear, status
-from utils import colored_print, Colors
+
+from utils import Colors, colored_print
+
+from .commands import ask, clear, setup_pipeline, status, upload
 
 
 def interactive_mode():
