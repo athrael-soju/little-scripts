@@ -1,5 +1,5 @@
 # ColPali and related models
-torch # For newer Nvidia GPUs (e.g. RTX 5090) use --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+torch # For newer Nvidia GPUs (e.g. RTX 5090) use uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 colpali_engine
 transformers
 

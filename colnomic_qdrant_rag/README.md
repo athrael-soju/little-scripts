@@ -105,12 +105,20 @@ uv pip install -r requirements.txt
 ### 2. Start Infrastructure Services
 
 ```bash
-# Start Qdrant and MinIO services
-docker-compose up -d
+# Start Qdrant (CPU version) and MinIO services
+docker-compose --profile cpu up -d
+
+# OR: Start Qdrant (GPU version) and MinIO services (requires NVIDIA GPU)
+docker-compose --profile gpu up -d
 
 # Verify services are running
 docker-compose ps
 ```
+
+> **Note**: The GPU version requires:
+> - NVIDIA GPU with CUDA support
+> - [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html) installed
+> - Docker configured to use GPU resources
 
 ### 3. Configure Environment
 
