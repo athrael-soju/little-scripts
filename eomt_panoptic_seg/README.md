@@ -30,18 +30,6 @@ This application uses the **EOMT (Encoder-only Mask Transformer)** model, as pre
 - **Key Innovation**: No adapters, no decoders - just the ViT encoding image patches and segmentation queries as tokens
 - **Performance**: Up to 4× faster than complex methods while maintaining state-of-the-art accuracy
 
-### Research Citation
-```
-@inproceedings{kerssies2025eomt,
-  author     = {Kerssies, Tommie and Cavagnero, Niccol\`{o} and Hermans, Alexander and Norouzi, Narges and Averta, Giuseppe and Leibe, Bastian and Dubbelman, Gijs and de Geus, Daan},
-  title      = {Your ViT is Secretly an Image Segmentation Model},
-  booktitle  = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year       = {2025},
-}
-```
-
-🔗 **Research Website**: [https://www.tue-mps.org/eomt/](https://www.tue-mps.org/eomt/)
-
 ## 🛠️ Installation
 
 1. **Clone the repository** (if not already done):
