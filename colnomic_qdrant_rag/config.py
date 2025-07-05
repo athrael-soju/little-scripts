@@ -20,7 +20,7 @@ DISTANCE_METRIC = "Cosine"  # Using string representation for simplicity
 
 # Indexing Configuration
 BATCH_SIZE = 4
-OPTIMIZE_COLLECTION = True
+OPTIMIZE_COLLECTION = False
 
 # Search Configuration
 SEARCH_LIMIT = 3
