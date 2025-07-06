@@ -1,5 +1,6 @@
 import io
 import itertools
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 
 from qdrant_client.http import models
@@ -64,52 +65,71 @@ class RetrievalPipeline:
                 images = [doc["image"] for doc in batch_data]
                 image_embeddings = self.model_handler.get_image_embeddings(images)
 
-                points = []
-                for j, (embedding, doc) in enumerate(zip(image_embeddings, batch_data)):
-                    current_index = global_doc_index + j
-                    point_id = initial_points_count + current_index
+                points = [None] * len(batch_data)
+                future_to_index = {}
 
-                    multivector = embedding.cpu().float().numpy().tolist()
+                with ThreadPoolExecutor() as executor:
+                    for j, doc in enumerate(batch_data):
+                        current_index = global_doc_index + j
+                        point_id = initial_points_count + current_index
 
-                    pil_image = doc["image"]
-                    safe_source_name = "".join(
-                        c if c.isalnum() else "_" for c in source_name
-                    )
-                    image_name = f"{safe_source_name}_idx{point_id}.png"
-
-                    buffer = io.BytesIO()
-                    pil_image.save(buffer, format="PNG")
-                    image_url = self.minio_handler.upload_image(
-                        image_name, buffer.getvalue()
-                    )
-
-                    payload = {
-                        "source": doc.get("source", source_name),
-                        "dataset_index": current_index,
-                        "batch_id": batch_id,
-                        "has_image": True,
-                        "image_url": image_url,
-                    }
-
-                    for key, value in doc.items():
-                        if key != "image" and isinstance(
-                            value, (str, int, float, bool)
-                        ):
-                            payload[key] = value
-
-                    points.append(
-                        models.PointStruct(
-                            id=point_id,
-                            vector=multivector,
-                            payload=payload,
+                        pil_image = doc["image"]
+                        safe_source_name = "".join(
+                            c if c.isalnum() else "_" for c in source_name
                         )
-                    )
+                        image_name = f"{safe_source_name}_idx{point_id}.png"
 
-                try:
-                    self.vector_db.upsert_batch(points)
-                except Exception as e:
-                    print(f"Error during batch upload: {e}")
-                    continue
+                        buffer = io.BytesIO()
+                        pil_image.save(buffer, format="PNG")
+                        image_bytes = buffer.getvalue()
+
+                        future = executor.submit(
+                            self.minio_handler.upload_image, image_name, image_bytes
+                        )
+                        future_to_index[future] = j
+
+                    for future in as_completed(future_to_index):
+                        j = future_to_index[future]
+                        try:
+                            image_url = future.result()
+                            doc = batch_data[j]
+                            embedding = image_embeddings[j]
+                            multivector = embedding.cpu().float().numpy().tolist()
+
+                            current_index = global_doc_index + j
+                            point_id = initial_points_count + current_index
+
+                            payload = {
+                                "source": doc.get("source", source_name),
+                                "dataset_index": current_index,
+                                "batch_id": batch_id,
+                                "has_image": True,
+                                "image_url": image_url,
+                            }
+
+                            for key, value in doc.items():
+                                if key != "image" and isinstance(
+                                    value, (str, int, float, bool)
+                                ):
+                                    payload[key] = value
+
+                            points[j] = models.PointStruct(
+                                id=point_id,
+                                vector=multivector,
+                                payload=payload,
+                            )
+                        except Exception as e:
+                            print(f"Error uploading image for doc index {j}: {e}")
+
+                # Filter out any points that failed during upload
+                successful_points = [p for p in points if p is not None]
+
+                if successful_points:
+                    try:
+                        self.vector_db.upsert_batch(successful_points)
+                    except Exception as e:
+                        print(f"Error during batch upload: {e}")
+                        continue
 
                 global_doc_index += len(images)
                 pbar.update(len(images))

@@ -302,6 +302,11 @@ def upload(pipeline, file_path=None, interactive=False):
         )
         colored_print("🎉 Documents indexed successfully!", Colors.OKGREEN)
 
+        if config.OPTIMIZE_COLLECTION:
+            colored_print("⏳ Optimizing collection for search...", Colors.OKBLUE)
+            pipeline.vector_db.optimize_collection()
+            colored_print("✅ Collection optimized successfully!", Colors.OKGREEN)
+
         if interactive:
             colored_print(
                 "\n💡 You can now ask questions directly! Just type what you want to know.",
