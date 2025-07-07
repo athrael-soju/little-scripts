@@ -93,3 +93,27 @@ class MinioHandler:
 
         except S3Error as e:
             raise IOError(f"Failed to upload image '{image_name}' to MinIO: {e}")
+
+    def clear_bucket(self):
+        """
+        Clears all objects from the MinIO bucket.
+        """
+        try:
+            # List all objects in the bucket
+            objects = self.client.list_objects(self.bucket_name, recursive=True)
+
+            # Delete all objects
+            object_names = [obj.object_name for obj in objects]
+            if object_names:
+                # Delete objects in batches
+                for delete_error in self.client.remove_objects(
+                    self.bucket_name, object_names
+                ):
+                    print(
+                        f"Warning: Could not delete object {delete_error.object_name}: {delete_error.error}"
+                    )
+
+            return True
+
+        except S3Error as e:
+            raise IOError(f"Failed to clear MinIO bucket '{self.bucket_name}': {e}")

@@ -24,7 +24,9 @@ def interactive_mode():
     colored_print(
         "  • upload [--file path] - Upload and index documents", Colors.OKCYAN
     )
-    colored_print("  • clear-collection    - Clear the collection", Colors.OKCYAN)
+    colored_print(
+        "  • clear-collection    - Clear the collection and images", Colors.OKCYAN
+    )
     colored_print("  • show-status         - Show system status", Colors.OKCYAN)
     colored_print("  • help                - Show this help", Colors.OKCYAN)
     colored_print("  • exit/quit           - Exit interactive mode", Colors.OKCYAN)
@@ -84,7 +86,8 @@ def interactive_mode():
                     Colors.OKCYAN,
                 )
                 colored_print(
-                    "  • clear-collection    - Clear the collection", Colors.OKCYAN
+                    "  • clear-collection    - Clear the collection and images",
+                    Colors.OKCYAN,
                 )
                 colored_print(
                     "  • show-status         - Show system status", Colors.OKCYAN
@@ -145,7 +148,7 @@ def interactive_mode():
                         file_path = " ".join(parts[1:])  # Handle paths with spaces
                 upload(pipeline, file_path, interactive=True)
             elif command == "clear-collection":
-                clear(vector_db, interactive=True)
+                clear(vector_db, minio_handler, interactive=True)
             elif command == "show-status":
                 status(vector_db, openai_handler, minio_handler)
             # Backwards compatibility for old commands
@@ -166,7 +169,7 @@ def interactive_mode():
                         )
             elif command == "clear":
                 colored_print("💡 Use 'clear-collection' for clarity", Colors.OKCYAN)
-                clear(vector_db, interactive=True)
+                clear(vector_db, minio_handler, interactive=True)
             elif command == "status":
                 colored_print("💡 Use 'show-status' for clarity", Colors.OKCYAN)
                 status(vector_db, openai_handler, minio_handler)
@@ -260,11 +263,11 @@ Examples:
     # Clear command
     subparsers.add_parser(
         "clear-collection",
-        help="🗑️  Clear all documents from the collection (destructive operation)",
+        help="🗑️  Clear all documents and images from the collection (destructive operation)",
     )
     # Backwards compatibility alias
     subparsers.add_parser(
-        "clear", help="🗑️  Clear all documents (alias for clear-collection)"
+        "clear", help="🗑️  Clear all documents and images (alias for clear-collection)"
     )
 
     # Status command
@@ -309,7 +312,7 @@ Examples:
         success = upload(pipeline, args.file)
         sys.exit(0 if success else 1)
     elif args.command in ["clear-collection", "clear"]:
-        success = clear(vector_db)
+        success = clear(vector_db, minio_handler)
         sys.exit(0 if success else 1)
     elif args.command in ["show-status", "status"]:
         success = status(vector_db, openai_handler, minio_handler)

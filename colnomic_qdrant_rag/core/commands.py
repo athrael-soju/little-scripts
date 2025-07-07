@@ -302,11 +302,6 @@ def upload(pipeline, file_path=None, interactive=False):
         )
         colored_print("🎉 Documents indexed successfully!", Colors.OKGREEN)
 
-        if config.OPTIMIZE_COLLECTION:
-            colored_print("⏳ Optimizing collection for search...", Colors.OKBLUE)
-            pipeline.vector_db.optimize_collection()
-            colored_print("✅ Collection optimized successfully!", Colors.OKGREEN)
-
         if interactive:
             colored_print(
                 "\n💡 You can now ask questions directly! Just type what you want to know.",
@@ -320,11 +315,12 @@ def upload(pipeline, file_path=None, interactive=False):
         return False
 
 
-def clear(vector_db, interactive=False):
-    """Clears the vector database collection."""
+def clear(vector_db, minio_handler=None, interactive=False):
+    """Clears the vector database collection and MinIO bucket."""
     if interactive:
         colored_print(
-            "⚠️  This will permanently delete all indexed documents!", Colors.WARNING
+            "⚠️  This will permanently delete all indexed documents and images!",
+            Colors.WARNING,
         )
         confirmation = (
             input("Are you sure you want to continue? (y/N): ").lower().strip()
@@ -333,15 +329,37 @@ def clear(vector_db, interactive=False):
             colored_print("❌ Operation cancelled", Colors.OKCYAN)
             return False
 
-    try:
-        colored_print("🗑️  Clearing collection...", Colors.WARNING)
-        vector_db.recreate_collection()
-        colored_print("✅ Collection cleared and recreated", Colors.OKGREEN)
-        return True
+    success = True
 
+    # Clear Qdrant collection
+    try:
+        colored_print("🗑️  Clearing Qdrant collection...", Colors.WARNING)
+        vector_db.recreate_collection()
+        colored_print("✅ Qdrant collection cleared and recreated", Colors.OKGREEN)
     except Exception as e:
-        colored_print(f"❌ Error clearing collection: {e}", Colors.FAIL)
-        return False
+        colored_print(f"❌ Error clearing Qdrant collection: {e}", Colors.FAIL)
+        success = False
+
+    # Clear MinIO bucket if handler is provided
+    if minio_handler:
+        try:
+            colored_print("🗑️  Clearing MinIO bucket...", Colors.WARNING)
+            minio_handler.clear_bucket()
+            colored_print("✅ MinIO bucket cleared", Colors.OKGREEN)
+        except Exception as e:
+            colored_print(f"❌ Error clearing MinIO bucket: {e}", Colors.FAIL)
+            success = False
+    else:
+        colored_print(
+            "⚠️  MinIO handler not available - skipping image cleanup", Colors.WARNING
+        )
+
+    if success:
+        colored_print("✅ All data cleared successfully", Colors.OKGREEN)
+    else:
+        colored_print("⚠️  Some cleanup operations failed", Colors.WARNING)
+
+    return success
 
 
 def status(vector_db, openai_handler, minio_handler):

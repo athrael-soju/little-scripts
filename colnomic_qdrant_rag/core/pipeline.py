@@ -3,8 +3,10 @@ import itertools
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List, Optional
 
+import config
 from qdrant_client.http import models
 from tqdm import tqdm
+from utils import Colors, colored_print
 
 
 def batch_iterable(iterable, batch_size):
@@ -135,6 +137,12 @@ class RetrievalPipeline:
                 pbar.update(len(images))
 
         print("Indexing complete!")
+
+        # Optimize collection if enabled
+        if config.OPTIMIZE_COLLECTION:
+            colored_print("⏳ Optimizing collection for search...", Colors.OKBLUE)
+            self.vector_db.optimize_collection()
+            colored_print("✅ Collection optimized successfully!", Colors.OKGREEN)
 
     def search(self, query_text, limit, oversampling):
         """Search for documents using a text query."""
