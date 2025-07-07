@@ -29,7 +29,10 @@ class OpenAIHandler:
         if isinstance(image, Image.Image):
             # PIL Image
             buffer = io.BytesIO()
-            image.save(buffer, format="PNG")
+            save_kwargs = {"format": config.IMAGE_FORMAT}
+            if config.IMAGE_FORMAT.upper() == "JPEG":
+                save_kwargs["quality"] = config.IMAGE_QUALITY
+            image.save(buffer, **save_kwargs)
             image_bytes = buffer.getvalue()
         elif hasattr(image, "read"):
             # File-like object
@@ -41,6 +44,16 @@ class OpenAIHandler:
             raise ValueError(f"Unsupported image type: {type(image)}")
 
         return base64.b64encode(image_bytes).decode("utf-8")
+
+    def _get_image_mime_type(self) -> str:
+        """Get the appropriate MIME type based on the configured image format."""
+        if config.IMAGE_FORMAT.upper() == "PNG":
+            return "image/png"
+        elif config.IMAGE_FORMAT.upper() == "JPEG":
+            return "image/jpeg"
+        else:
+            # Default to PNG if format is not recognized
+            return "image/png"
 
     def download_image_from_url(self, url: str) -> bytes:
         """Download image from URL and return as bytes."""
@@ -93,7 +106,7 @@ class OpenAIHandler:
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:image/png;base64,{base64_image}"
+                                    "url": f"data:{self._get_image_mime_type()};base64,{base64_image}"
                                 },
                             }
                         )
@@ -104,7 +117,7 @@ class OpenAIHandler:
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:image/png;base64,{base64_image}"
+                                    "url": f"data:{self._get_image_mime_type()};base64,{base64_image}"
                                 },
                             }
                         )
