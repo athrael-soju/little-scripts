@@ -12,6 +12,7 @@ This application provides an intelligent document retrieval system that can:
 - **Provide AI-powered conversational responses** using OpenAI integration
 - **Handle multimodal content** with both text queries and image understanding
 - **Scale efficiently** with optimized vector storage and retrieval
+- **Configurable image formats** (JPEG/PNG) for optimized performance vs quality trade-offs
 
 ### Key Features
 
@@ -22,6 +23,7 @@ This application provides an intelligent document retrieval system that can:
 - ⚡ **Binary Quantization**: Efficient storage with minimal quality loss
 - 🎯 **Interactive CLI**: User-friendly command-line interface
 - 🐳 **Docker Ready**: Easy deployment with Docker Compose
+- 🎨 **Configurable Image Formats**: JPEG/PNG with quality control for performance optimization
 
 ## 🏗️ Architecture
 
@@ -33,7 +35,7 @@ This application provides an intelligent document retrieval system that can:
 
 - **ColPali Model**: Advanced multimodal embeddings using `nomic-ai/colnomic-embed-multimodal-3b`
 - **Qdrant Vector Database**: High-performance vector search with binary quantization
-- **MinIO Object Storage**: Scalable image and document storage
+- **MinIO Object Storage**: Scalable image and document storage with configurable formats
 - **OpenAI Integration**: Enhanced conversational analysis capabilities
 
 ## 🎯 Why Colnomic?
@@ -91,8 +93,8 @@ As an **open-weights** model with only 3B parameters, Colnomic strikes the perfe
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/your-username/colpali-binary-quant.git
-cd colpali-binary-quant
+git clone https://github.com/athrael.soju/little-scripts.git
+cd colnomic-qdrant-rag
 
 # Create virtual environment
 uv venv
@@ -124,6 +126,7 @@ OPENAI_MODEL=gpt-4.1-mini
 # MinIO Configuration (defaults work with Docker Compose)
 MINIO_ENDPOINT=localhost:9000
 MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
 ```
 
 ### 4. Run the Application
@@ -151,37 +154,40 @@ Once in interactive mode, you can:
 
 ```
 🔍 colpali[Basic]> What are UFO sightings in California?
-🤖 colpali[Conversational]> set-mode conversational
+🔍 colpali[Basic]> set-mode conversational
 🤖 colpali[Conversational]> Analyze the visual patterns in these documents
 🔍 colpali[Basic]> upload --file my_document.pdf
 🔍 colpali[Basic]> show-status
+🔍 colpali[Basic]> clear-collection
 ```
 
-### Command Line Interface
+### Available Commands
 
-#### Search Commands
+#### Interactive Mode Commands
+- **Direct queries**: Just type your question (e.g., "What are UFO sightings?")
+- **`set-mode basic`**: Switch to basic search mode (fast document retrieval)
+- **`set-mode conversational`**: Switch to AI-powered conversational mode
+- **`upload [--file path]`**: Upload and index documents
+- **`clear-collection`**: Clear all documents and images
+- **`show-status`**: Display system status
+- **`help`**: Show help information
+- **`exit`**: Exit interactive mode
+
+#### Command Line Interface
 
 ```bash
-# Basic search (fast, document retrieval only)
-python main.py ask "UFO sightings in Texas"
+# Search Commands
+python main.py ask "UFO sightings in Texas"                    # Basic search
+python main.py analyze "What do these UFO images reveal?"      # AI-powered analysis
 
-# AI-powered analysis (includes conversational response)
-python main.py analyze "What do these UFO images reveal about encounter patterns?"
-```
+# Document Management
+python main.py upload --file path/to/document.pdf             # Upload specific file
+python main.py upload                                          # Use default UFO dataset
+python main.py clear-collection                                # Clear all documents
+python main.py show-status                                     # System status
 
-#### Document Management
-
-```bash
-# Upload and index documents
-python main.py upload --file path/to/document.pdf
-python main.py upload --file path/to/documents.txt
-python main.py upload  # Use default UFO dataset
-
-# Clear all documents
-python main.py clear-collection
-
-# Check system status
-python main.py show-status
+# Interactive Mode
+python main.py interactive                                      # Start interactive mode
 ```
 
 ### Search Modes
@@ -189,12 +195,13 @@ python main.py show-status
 1. **Basic Mode** 🔍
    - Fast document retrieval
    - Returns relevant documents with similarity scores
-   - No AI analysis
+   - Optimal for quick searches
 
 2. **Conversational Mode** 🤖
    - AI-powered responses using OpenAI
    - Contextual analysis of retrieved documents
    - Streaming responses with citations
+   - Requires OpenAI API key
 
 ## ⚙️ Configuration
 
@@ -203,7 +210,9 @@ python main.py show-status
 ```python
 # Model Configuration
 MODEL_NAME = "nomic-ai/colnomic-embed-multimodal-3b"
+PROCESSOR_NAME = "nomic-ai/colnomic-embed-multimodal-3b"
 VECTOR_SIZE = 128
+DISTANCE_METRIC = "Cosine"
 
 # Search Configuration
 SEARCH_LIMIT = 3          # Number of results to return
@@ -211,7 +220,31 @@ OVERSAMPLING = 2.0        # Improve recall with oversampling
 
 # Processing Configuration
 BATCH_SIZE = 4            # Batch size for indexing
+OPTIMIZE_COLLECTION = False  # Enable collection optimization
+
+# Image Configuration
+IMAGE_FORMAT = "JPEG"     # Options: "PNG", "JPEG"
+IMAGE_QUALITY = 85        # JPEG quality (1-100), ignored for PNG
+MAX_SAVE_IMAGES = 3       # Maximum images to save per query
+
+# OpenAI Configuration
+OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MAX_TOKENS = 500
+OPENAI_TEMPERATURE = 0.7
 ```
+
+### Image Format Options
+
+The system supports configurable image formats for optimal performance:
+
+| Format | Pros | Cons | Best For |
+|--------|------|------|----------|
+| **JPEG** | 60-80% smaller files, faster uploads | Lossy compression | General use, performance critical |
+| **PNG** | Lossless quality, perfect fidelity | Larger files, slower uploads | High quality requirements |
+
+**Performance Impact:**
+- **JPEG**: Significantly faster indexing and retrieval due to smaller file sizes
+- **PNG**: Better for documents with fine text or when quality is paramount
 
 ### Environment Variables
 
@@ -221,6 +254,8 @@ BATCH_SIZE = 4            # Batch size for indexing
 | `OPENAI_MODEL` | OpenAI model to use | `gpt-4.1-mini` |
 | `QDRANT_URL` | Qdrant database URL | `http://localhost:6333` |
 | `MINIO_ENDPOINT` | MinIO server endpoint | `localhost:9000` |
+| `MINIO_ACCESS_KEY` | MinIO access key | `minioadmin` |
+| `MINIO_SECRET_KEY` | MinIO secret key | `minioadmin` |
 
 ### Binary Quantization
 
@@ -232,7 +267,7 @@ The system uses **binary quantization** in Qdrant for:
 ## 📁 Project Structure
 
 ```
-colpali-binary-quant/
+colnomic-qdrant-rag/
 ├── main.py                 # Application entry point
 ├── config.py              # Configuration settings
 ├── requirements.txt       # Python dependencies
@@ -261,22 +296,23 @@ MODEL_NAME = "your-custom-colpali-model"
 PROCESSOR_NAME = "your-custom-colpali-model"
 ```
 
-### GPU Optimization
-
-For newer NVIDIA GPUs (RTX 5090, etc.):
-
-```bash
-# Install PyTorch nightly with CUDA 12.8
-pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
-```
-
-### Batch Processing
-
-For large document collections:
+### Performance Optimization
 
 ```python
-# Increase batch size for better GPU utilization
-BATCH_SIZE = 8  # Adjust based on GPU memory
+# For better performance with large datasets
+BATCH_SIZE = 8              # Increase for better GPU utilization
+IMAGE_FORMAT = "JPEG"       # Use JPEG for faster processing
+IMAGE_QUALITY = 75          # Lower quality for even faster processing
+OPTIMIZE_COLLECTION = True  # Enable collection optimization
+```
+
+### GPU Optimization
+
+For newer NVIDIA GPUs:
+
+```bash
+# Install PyTorch with appropriate CUDA version
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ## 🐳 Docker Deployment
@@ -311,8 +347,8 @@ Access service dashboards:
 ### Common Issues
 
 1. **CUDA Out of Memory**
-   ```bash
-   # Reduce batch size
+   ```python
+   # Reduce batch size in config.py
    BATCH_SIZE = 2
    ```
 
@@ -335,11 +371,19 @@ Access service dashboards:
    export HF_TOKEN=your_huggingface_token
    ```
 
-### Performance Optimization
+5. **MinIO Bucket Clear Error**
+   ```bash
+   # Recent fix for MinIO bucket clearing
+   # Error: 'str' object has no attribute 'toxml'
+   # Fixed in latest version
+   ```
+
+### Performance Optimization Tips
 
 - **GPU Memory**: Adjust `BATCH_SIZE` based on available VRAM
 - **Search Speed**: Tune `OVERSAMPLING` for quality vs speed trade-off
-- **Storage**: Binary quantization reduces storage by ~90%
+- **Storage**: Use JPEG format for 60-80% storage savings
+- **Network**: Binary quantization reduces storage by ~90%
 
 ## 🤝 Contributing
 
@@ -352,11 +396,10 @@ Access service dashboards:
 
 ```bash
 # Install development dependencies
-pip install -r requirements.txt
-pip install ruff  # For code formatting
+uv pip install -r requirements.txt
 
-# Run code formatting
-ruff check --fix .
+# Run the application
+python main.py interactive
 ```
 
 ## 📄 License
@@ -368,19 +411,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **ColPali Team** for the innovative multimodal retrieval approach
 - **Qdrant** for high-performance vector search capabilities
 - **Nomic AI** for the excellent embedding models
-- **OpenAI** for conversational AI capabilities
-
-## 📚 Resources
-
-- [ColPali Paper](https://arxiv.org/abs/2407.01449)
-- [Qdrant Documentation](https://qdrant.tech/documentation/)
-- [MinIO Documentation](https://min.io/docs/)
-- [Binary Quantization Guide](https://qdrant.tech/documentation/guides/quantization/)
-
----
-
-**Made with ❤️ for efficient document retrieval and analysis**
-
 - **OpenAI** for conversational AI capabilities
 
 ## 📚 Resources
