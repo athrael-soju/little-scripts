@@ -23,6 +23,16 @@ class MinioHandler:
         except Exception as e:
             raise ConnectionError(f"Failed to initialize MinIO client: {e}")
 
+    def _get_content_type(self):
+        """Returns the appropriate content type based on the configured image format."""
+        if config.IMAGE_FORMAT.upper() == "PNG":
+            return "image/png"
+        elif config.IMAGE_FORMAT.upper() == "JPEG":
+            return "image/jpeg"
+        else:
+            # Default to PNG if format is not recognized
+            return "image/png"
+
     def ensure_bucket_exists(self):
         """Checks if the bucket exists, creates it if it doesn't, and ensures it's public."""
         try:
@@ -82,7 +92,7 @@ class MinioHandler:
                 image_name,
                 image_stream,
                 length=len(image_data),
-                content_type="image/png",  # Assuming PNG, can be made more generic
+                content_type=self._get_content_type(),
             )
 
             # Construct the public URL

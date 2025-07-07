@@ -79,10 +79,19 @@ class RetrievalPipeline:
                         safe_source_name = "".join(
                             c if c.isalnum() else "_" for c in source_name
                         )
-                        image_name = f"{safe_source_name}_idx{point_id}.png"
+                        # Use appropriate file extension based on format
+                        file_extension = (
+                            "jpg" if config.IMAGE_FORMAT.upper() == "JPEG" else "png"
+                        )
+                        image_name = (
+                            f"{safe_source_name}_idx{point_id}.{file_extension}"
+                        )
 
                         buffer = io.BytesIO()
-                        pil_image.save(buffer, format="PNG")
+                        save_kwargs = {"format": config.IMAGE_FORMAT}
+                        if config.IMAGE_FORMAT.upper() == "JPEG":
+                            save_kwargs["quality"] = config.IMAGE_QUALITY
+                        pil_image.save(buffer, **save_kwargs)
                         image_bytes = buffer.getvalue()
 
                         future = executor.submit(

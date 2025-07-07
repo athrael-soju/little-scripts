@@ -32,6 +32,10 @@ DATASET_SPLIT = "train"
 
 # Image Save Configuration
 MAX_SAVE_IMAGES = 3
+IMAGE_FORMAT = (
+    "JPEG"  # Options: "PNG", "JPEG" - JPEG is faster and smaller, PNG is lossless
+)
+IMAGE_QUALITY = 85  # JPEG quality (1-100), ignored for PNG
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")

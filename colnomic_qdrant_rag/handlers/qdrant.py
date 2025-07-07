@@ -38,7 +38,6 @@ class QdrantHandler:
             )
             return
 
-        print(f"Creating collection: {self.collection_name}")
         self.client.create_collection(
             collection_name=self.collection_name,
             on_disk_payload=True,
@@ -57,7 +56,6 @@ class QdrantHandler:
 
     def recreate_collection(self):
         """Deletes and recreates the collection."""
-        print(f"Recreating collection: {self.collection_name}")
         self.client.delete_collection(collection_name=self.collection_name)
         self.create_collection()
 
