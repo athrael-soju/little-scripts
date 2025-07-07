@@ -3,6 +3,7 @@ import json
 
 import config
 from minio import Minio
+from minio.deleteobjects import DeleteObject
 from minio.error import S3Error
 
 
@@ -105,9 +106,12 @@ class MinioHandler:
             # Delete all objects
             object_names = [obj.object_name for obj in objects]
             if object_names:
+                # Create DeleteObject instances for batch deletion
+                delete_objects = [DeleteObject(name) for name in object_names]
+
                 # Delete objects in batches
                 for delete_error in self.client.remove_objects(
-                    self.bucket_name, object_names
+                    self.bucket_name, delete_objects
                 ):
                     print(
                         f"Warning: Could not delete object {delete_error.object_name}: {delete_error.error}"
