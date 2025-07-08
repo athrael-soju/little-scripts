@@ -10,41 +10,46 @@ A monorepo containing various utility scripts, tools, and applications for devel
 
 ## 📁 Projects
 
-### 🤖 [ColPali(ColNomic) + Qdrant + MinIO Retrieval System](./colnomic_qdrant_rag/)
+<details>
+<summary><strong>🤖 ColPali(ColNomic) + Qdrant + MinIO Retrieval System</strong></summary>
 
 A powerful multimodal document retrieval system that combines ColPali embeddings with vector search for intelligent document analysis.
 
 **What it does:**
-- Search PDF documents and images using natural language queries
-- Get AI-powered conversational responses about document content
-- Handle complex visual documents with charts, diagrams, and mixed content
-- Scale efficiently with optimized vector storage and retrieval
+- 🔍 Search PDF documents and images using natural language queries
+- 💬 Get AI-powered conversational responses about document content
+- 📊 Handle complex visual documents with charts, diagrams, and mixed content
+- ⚡ Scale efficiently with optimized vector storage and retrieval
 
 **Key highlights:** 13x faster search performance, binary quantization, Docker deployment, interactive CLI
 
 [📖 View Full Documentation](./colnomic_qdrant_rag/README.md)
 
----
+</details>
 
-### 🖼️ [EOMT Panoptic Segmentation App](./eomt_panoptic_seg/)
+<details>
+<summary><strong>🖼️ EOMT Panoptic Segmentation App</strong></summary>
 
 An interactive web application for panoptic segmentation using the EOMT (Encoder-only Mask Transformer) model - a minimalist Vision Transformer approach for image segmentation.
 
 **What it does:**
-- Interactive web interface for image segmentation
-- Multiple visualization types (masks, overlays, contours, analytics)
-- Real-time processing with detailed segment statistics
-- Built-in test images for experimentation
+- 🖥️ Interactive web interface for image segmentation
+- 🎨 Multiple visualization types (masks, overlays, contours, analytics)
+- ⚡ Real-time processing with detailed segment statistics
+- 🧪 Built-in test images for experimentation
 
 **Key highlights:** Up to 4× faster than complex methods, Gradio interface, comprehensive analytics
 
 [📖 View Full Documentation](./eomt_panoptic_seg/README.md)
 
----
+</details>
 
-### 🔧 Future Projects
+<details>
+<summary><strong>🔧 Future Projects</strong></summary>
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
+
+</details>
 
 ## 🚀 Quick Start
 
