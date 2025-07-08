@@ -168,7 +168,7 @@ Read the full research: [Optimizing ColPali for Retrieval at Scale](https://qdra
 
 ```bash
 git clone https://github.com/athrael.soju/little-scripts.git
-cd colnomic-qdrant-rag
+cd colnomic_qdrant_rag
 
 # Create virtual environment
 uv venv
@@ -376,7 +376,7 @@ The system uses **binary quantization** in Qdrant for:
 ## 📁 Project Structure
 
 ```
-colnomic-qdrant-rag/
+colnomic_qdrant_rag/
 ├── main.py                 # Application entry point
 ├── config.py              # Configuration settings
 ├── requirements.txt       # Python dependencies
@@ -396,19 +396,6 @@ colnomic-qdrant-rag/
 ## 🔧 Advanced Usage
 
 ### Mean Pooling and Reranking Optimization
-
-To enable the 13x faster search performance for large collections:
-
-```python
-# In config.py
-ENABLE_RERANKING_OPTIMIZATION = True   # Enable multi-vector reranking
-RERANKING_PREFETCH_LIMIT = 200         # Adjust based on collection size
-RERANKING_SEARCH_LIMIT = 20            # Final results returned
-
-# For very large collections (10,000+ pages), consider:
-RERANKING_PREFETCH_LIMIT = 500         # More candidates for better recall
-RERANKING_SEARCH_LIMIT = 50            # More final results if needed
-```
 
 **Important:** When enabling reranking optimization, you must **recreate your collection** as it changes the vector configuration:
 
@@ -462,17 +449,6 @@ IMAGE_QUALITY = 70                # Lower quality images
 | **100-500 pages** | `False` or `True` | 100-150 | 0.1-0.2s |
 | **500-2,000 pages** | `True` | 150-300 | 0.05-0.15s |
 | **2,000+ pages** | `True` | 300-500 | 0.1-0.3s |
-
-### Metrics Configuration
-
-The system features **streamlined metrics** with minimal configuration:
-
-- **Automatic processing rate calculation** (docs/second)
-- **Real-time progress tracking** with clean progress bars
-- **Background task monitoring** for image uploads
-- **Clean summary reports** at completion
-
-No verbose debugging or noisy logging - just the metrics you need to monitor performance.
 
 ### GPU Optimization
 
@@ -539,20 +515,7 @@ Access service dashboards:
    export HF_TOKEN=your_huggingface_token
    ```
 
-5. **MinIO Bucket Clear Error**
-   ```bash
-   # Recent fix for MinIO bucket clearing
-   # Error: 'str' object has no attribute 'toxml'
-   # Fixed in latest version
-   ```
 
-### Performance Optimization Tips
-
-- **GPU Memory**: Adjust `BATCH_SIZE` based on available VRAM
-- **Search Speed**: Tune `OVERSAMPLING` for quality vs speed trade-off
-- **Storage**: Use JPEG format for 60-80% storage savings
-- **Network**: Binary quantization reduces storage by ~90%
-- **Logging**: Streamlined metrics provide performance insights without noise
 
 ### Understanding Metrics
 
