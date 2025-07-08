@@ -251,6 +251,11 @@ DISTANCE_METRIC = "Cosine"
 SEARCH_LIMIT = 3          # Number of results to return
 OVERSAMPLING = 2.0        # Improve recall with oversampling
 
+# ColQwen Reranking Optimization (NEW!)
+ENABLE_RERANKING_OPTIMIZATION = True  # Set to True for multi-vector reranking
+RERANKING_PREFETCH_LIMIT = 200  # Candidates retrieved with pooled vectors
+RERANKING_SEARCH_LIMIT = 20     # Final results after reranking
+
 # Processing Configuration
 BATCH_SIZE = 4            # Batch size for indexing
 OPTIMIZE_COLLECTION = False  # Enable collection optimization
@@ -261,7 +266,7 @@ IMAGE_QUALITY = 85        # JPEG quality (1-100), ignored for PNG
 MAX_SAVE_IMAGES = 3       # Maximum images to save per query
 
 # OpenAI Configuration
-OPENAI_MODEL = "gpt-4o-mini"
+OPENAI_MODEL = "gpt-4.1-mini"
 OPENAI_MAX_TOKENS = 500
 OPENAI_TEMPERATURE = 0.7
 ```

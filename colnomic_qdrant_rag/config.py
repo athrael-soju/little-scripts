@@ -8,7 +8,7 @@ load_dotenv()
 
 # Qdrant Configuration
 QDRANT_URL = "http://localhost:6333"
-COLLECTION_NAME = "le-collection-2"
+COLLECTION_NAME = "le-collection-3"
 
 # Model Configuration
 MODEL_NAME = "nomic-ai/colnomic-embed-multimodal-3b"
@@ -23,13 +23,18 @@ BATCH_SIZE = 4
 OPTIMIZE_COLLECTION = False
 
 # Background processing settings
-MINIO_UPLOAD_WORKERS = 4       # Number of concurrent MinIO upload workers
+MINIO_UPLOAD_WORKERS = 4  # Number of concurrent MinIO upload workers
 MINIO_UPLOAD_RETRY_ATTEMPTS = 3  # Number of retry attempts for failed uploads
-MINIO_UPLOAD_TIMEOUT = 30      # Timeout for background worker shutdown in seconds
+MINIO_UPLOAD_TIMEOUT = 30  # Timeout for background worker shutdown in seconds
 
 # Search Configuration
 SEARCH_LIMIT = 3
 OVERSAMPLING = 2.0
+
+# Pooling and Reranking Optimization
+ENABLE_RERANKING_OPTIMIZATION = True  # This creates multi-vector collections with mean-pooled embeddings for faster search
+RERANKING_PREFETCH_LIMIT = 200  # Number of candidates to prefetch with pooled vectors
+RERANKING_SEARCH_LIMIT = 20  # Final number of results after reranking
 
 # Dataset Configuration
 DATASET_NAME = "davanstrien/ufo-ColPali"
@@ -52,5 +57,5 @@ OPENAI_TEMPERATURE = 0.7
 MINIO_ENDPOINT = "localhost:9000"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
-MINIO_BUCKET = "le-images-2"
+MINIO_BUCKET = "le-images-3"
 MINIO_USE_SSL = False
