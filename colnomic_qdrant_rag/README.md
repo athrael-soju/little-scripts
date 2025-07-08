@@ -456,7 +456,7 @@ For newer NVIDIA GPUs:
 
 ```bash
 # Install PyTorch with appropriate CUDA version
-uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+uv pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
 ```
 
 ## 🐳 Docker Deployment
