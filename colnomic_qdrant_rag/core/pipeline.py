@@ -116,8 +116,8 @@ class RetrievalPipeline:
                 # Get upload task with timeout
                 try:
                     task = self.upload_queue.get(timeout=1.0)
-                except Exception as e:
-                    colored_print(f"❌ Error getting upload task: {e}", Colors.FAIL)
+                except Exception:
+                    # Timeout or empty queue - continue the loop
                     continue
 
                 try:
@@ -242,10 +242,6 @@ class RetrievalPipeline:
                         current_index = global_doc_index + j
                         point_id = initial_points_count + current_index
 
-                        # Create Qdrant point immediately with placeholder image URL
-                        embedding = image_embeddings[j]
-                        multivector = embedding.cpu().float().numpy().tolist()
-
                         payload = {
                             "source": doc.get("source", source_name),
                             "dataset_index": current_index,
@@ -262,13 +258,39 @@ class RetrievalPipeline:
                             ):
                                 payload[key] = value
 
-                        points.append(
-                            models.PointStruct(
-                                id=point_id,
-                                vector=multivector,
-                                payload=payload,
+                        # Create Qdrant point with appropriate vector configuration
+                        if config.ENABLE_RERANKING_OPTIMIZATION:
+                            # Multi-vector configuration (Mean Pooling and Reranking Optimization)
+                            embedding = image_embeddings["original"][j]
+                            multivector = embedding.cpu().float().numpy().tolist()
+
+                            points.append(
+                                models.PointStruct(
+                                    id=point_id,
+                                    vector={
+                                        "original": multivector,
+                                        "mean_pooling_columns": image_embeddings[
+                                            "pooled_columns"
+                                        ][j],
+                                        "mean_pooling_rows": image_embeddings[
+                                            "pooled_rows"
+                                        ][j],
+                                    },
+                                    payload=payload,
+                                )
                             )
-                        )
+                        else:
+                            # Standard single vector configuration
+                            embedding = image_embeddings[j]
+                            multivector = embedding.cpu().float().numpy().tolist()
+
+                            points.append(
+                                models.PointStruct(
+                                    id=point_id,
+                                    vector=multivector,
+                                    payload=payload,
+                                )
+                            )
 
                         # Phase 2: Prepare image processing task (TRULY ASYNC)
                         pil_image = doc["image"]
@@ -337,10 +359,13 @@ class RetrievalPipeline:
         start_time = time.time()
         query_embedding = self.model_handler.get_query_embedding(query_text)
 
-        # query_embedding is a batch result from processing [query_text], so we need [0] to get the first result
-        multivector_query = query_embedding[0].cpu().float().numpy().tolist()
-
-        result = self.vector_db.search(multivector_query, limit, oversampling)
+        if config.ENABLE_RERANKING_OPTIMIZATION:
+            # Pass the full query embedding dictionary for reranking search
+            result = self.vector_db.search(query_embedding, limit, oversampling)
+        else:
+            # query_embedding is a batch result from processing [query_text], so we need [0] to get the first result
+            multivector_query = query_embedding[0].cpu().float().numpy().tolist()
+            result = self.vector_db.search(multivector_query, limit, oversampling)
 
         search_time = time.time() - start_time
         colored_print(f"🔍 Search completed in {search_time:.2f}s", Colors.OKCYAN)

@@ -12,18 +12,15 @@ A monorepo containing various utility scripts, tools, and applications for devel
 
 ### 🤖 [ColPali(ColNomic) + Qdrant + MinIO Retrieval System](./colnomic_qdrant_rag/)
 
-A powerful multimodal document retrieval system built with **ColNomic** (Using Late Interaction) and binary quantization for efficient document search and analysis.
+A powerful multimodal document retrieval system that combines ColPali embeddings with vector search for intelligent document analysis.
 
-**Key Features:**
-- 🔍 **Natural Language Search**: Query documents using plain English
-- 🤖 **AI-Powered Analysis**: Get conversational responses about document content
-- 📄 **PDF Support**: Automatically process and index PDF documents
-- 🖼️ **Image Understanding**: Advanced visual document analysis using ColPali
-- ⚡ **Binary Quantization**: Efficient storage with minimal quality loss
-- 🎯 **Interactive CLI**: User-friendly command-line interface
-- 🐳 **Docker Ready**: Easy deployment with Docker Compose
+**What it does:**
+- Search PDF documents and images using natural language queries
+- Get AI-powered conversational responses about document content
+- Handle complex visual documents with charts, diagrams, and mixed content
+- Scale efficiently with optimized vector storage and retrieval
 
-**Tech Stack:** Python, ColPali, Qdrant, MinIO, OpenAI, Docker
+**Key highlights:** 13x faster search performance, binary quantization, Docker deployment, interactive CLI
 
 [📖 View Full Documentation](./colnomic_qdrant_rag/README.md)
 
@@ -31,17 +28,15 @@ A powerful multimodal document retrieval system built with **ColNomic** (Using L
 
 ### 🖼️ [EOMT Panoptic Segmentation App](./eomt_panoptic_seg/)
 
-An interactive web application for panoptic segmentation using the **EOMT (Encoder-only Mask Transformer)** model - a minimalist approach that repurposes a plain Vision Transformer for image segmentation, as presented in the CVPR 2025 paper ["Your ViT is Secretly an Image Segmentation Model"](https://www.tue-mps.org/eomt/).
+An interactive web application for panoptic segmentation using the EOMT (Encoder-only Mask Transformer) model - a minimalist Vision Transformer approach for image segmentation.
 
-**Key Features:**
-- 🎨 **Interactive Web Interface**: User-friendly Gradio interface for image upload and processing
-- 🔍 **Multiple Visualization Types**: Original+Mask, Overlay, Contours, Segment Info, and All Views
-- 🧠 **EOMT Model**: Plain ViT-based segmentation with the `tue-mps/coco_panoptic_eomt_large_640` model
-- 📊 **Detailed Analytics**: Segment statistics and color-coded visualization
-- 🖼️ **Sample Images**: Built-in test images for immediate experimentation
-- ⚡ **Real-time Processing**: Up to 4× faster than complex methods while maintaining accuracy
+**What it does:**
+- Interactive web interface for image segmentation
+- Multiple visualization types (masks, overlays, contours, analytics)
+- Real-time processing with detailed segment statistics
+- Built-in test images for experimentation
 
-**Tech Stack:** Python, PyTorch, Transformers, Gradio, OpenCV, Matplotlib
+**Key highlights:** Up to 4× faster than complex methods, Gradio interface, comprehensive analytics
 
 [📖 View Full Documentation](./eomt_panoptic_seg/README.md)
 
@@ -71,14 +66,14 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
    cd colnomic_qdrant_rag
    ```
 
-3. **Follow the project-specific README** for setup instructions.
+3. **Follow the project-specific README** for detailed setup instructions.
 
 ## 📖 Project Structure
 
 ```
 little-scripts/
-├── colnomic_qdrant_rag/           # Col Based RAG System
-├── eomt_panoptic_seg/             # EOMT Panoptic Segmentation App
+├── colnomic_qdrant_rag/           # Multimodal document retrieval system
+├── eomt_panoptic_seg/             # Image segmentation web app
 └── [future-projects]/             # Additional projects will be added here
 ```
 
@@ -114,13 +109,17 @@ Open source - feel free to use and modify as needed.
 
 - **ai-tools**
 - **automation**
+- **colpali**
 - **computer-vision**
 - **document-retrieval**
 - **gradio**
 - **machine-learning**
+- **multimodal-search**
 - **panoptic-segmentation**
 - **python**
+- **qdrant**
 - **rag-system**
+- **reranking**
 - **transformers**
 - **utilities**
 - **vector-database**
