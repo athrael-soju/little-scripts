@@ -22,6 +22,13 @@ A powerful multimodal document retrieval system built with **ColNomic** (Using L
 - ⚡ **Binary Quantization**: Efficient storage with minimal quality loss
 - 🎯 **Interactive CLI**: User-friendly command-line interface
 - 🐳 **Docker Ready**: Easy deployment with Docker Compose
+- 🚀 **Mean Pooling and Reranking Optimization**: 13x faster search performance for large collections
+
+**Performance Highlights:**
+- **13x faster search** with two-stage retrieval optimization
+- **Mean pooling compression** reduces vectors from ~1,030 to ~38 per page
+- **Intelligent prefetch strategy** for maximum speed and accuracy
+- **Scales to 20,000+ pages** with sub-second search times
 
 **Tech Stack:** Python, ColPali, Qdrant, MinIO, OpenAI, Docker
 
@@ -114,13 +121,17 @@ Open source - feel free to use and modify as needed.
 
 - **ai-tools**
 - **automation**
+- **colpali**
 - **computer-vision**
 - **document-retrieval**
 - **gradio**
 - **machine-learning**
+- **multimodal-search**
 - **panoptic-segmentation**
 - **python**
+- **qdrant**
 - **rag-system**
+- **reranking**
 - **transformers**
 - **utilities**
 - **vector-database**

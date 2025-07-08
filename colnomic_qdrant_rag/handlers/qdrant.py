@@ -35,7 +35,7 @@ class QdrantHandler:
             return
 
         if config.ENABLE_RERANKING_OPTIMIZATION:
-            # Create collection with multiple vector configurations (ColQwen optimization)
+            # Create collection with multiple vector configurations (Mean Pooling and Reranking Optimization)
             self.client.create_collection(
                 collection_name=self.collection_name,
                 on_disk_payload=True,
@@ -147,7 +147,7 @@ class QdrantHandler:
         return search_result
 
     def _reranking_search(self, query_embeddings, limit):
-        """Reranking search with multiple vector configurations (ColQwen optimization)."""
+        """Reranking search with multiple vector configurations (Mean Pooling and Reranking Optimization)."""
         # Extract query embeddings for each vector type
         original_query = query_embeddings["original"][0]  # First query from batch
         pooled_rows_query = query_embeddings["pooled_rows"][0]

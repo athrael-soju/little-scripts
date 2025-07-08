@@ -260,7 +260,7 @@ class RetrievalPipeline:
 
                         # Create Qdrant point with appropriate vector configuration
                         if config.ENABLE_RERANKING_OPTIMIZATION:
-                            # Multi-vector configuration (ColQwen optimization)
+                            # Multi-vector configuration (Mean Pooling and Reranking Optimization)
                             embedding = image_embeddings["original"][j]
                             multivector = embedding.cpu().float().numpy().tolist()
 
