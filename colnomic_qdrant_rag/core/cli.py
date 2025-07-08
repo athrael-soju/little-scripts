@@ -150,7 +150,7 @@ def interactive_mode():
             elif command == "clear-collection":
                 clear(vector_db, minio_handler, interactive=True)
             elif command == "show-status":
-                status(vector_db, openai_handler, minio_handler)
+                status(vector_db, openai_handler, minio_handler, pipeline)
             # Backwards compatibility for old commands
             elif command == "mode":
                 colored_print(
@@ -172,7 +172,7 @@ def interactive_mode():
                 clear(vector_db, minio_handler, interactive=True)
             elif command == "status":
                 colored_print("💡 Use 'show-status' for clarity", Colors.OKCYAN)
-                status(vector_db, openai_handler, minio_handler)
+                status(vector_db, openai_handler, minio_handler, pipeline)
             # Explicit ask/analyze commands (for backwards compatibility)
             elif command == "ask":
                 if len(parts) > 1:
@@ -315,5 +315,5 @@ Examples:
         success = clear(vector_db, minio_handler)
         sys.exit(0 if success else 1)
     elif args.command in ["show-status", "status"]:
-        success = status(vector_db, openai_handler, minio_handler)
+        success = status(vector_db, openai_handler, minio_handler, pipeline)
         sys.exit(0 if success else 1)
