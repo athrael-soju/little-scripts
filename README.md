@@ -56,6 +56,7 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 ### Prerequisites
 
 - **Python 3.10+**
+- **Poetry** (for dependency management)
 - **Docker & Docker Compose** (for projects requiring infrastructure)
 
 ### Getting Started
@@ -66,21 +67,140 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
    cd little-scripts
    ```
 
-2. **Navigate to a specific project:**
+2. **Setup using the automated script (recommended):**
    ```bash
-   cd colnomic_qdrant_rag
+   # Install everything
+   python setup.py
+
+   # Or install specific projects
+   python setup.py --project colnomic    # ColPali Qdrant RAG only
+   python setup.py --project panoptic    # EOMT Panoptic Segmentation only
    ```
 
-3. **Follow the project-specific README** for setup instructions.
+   **Manual installation alternative:**
+   ```bash
+   # Install Poetry dependencies
+   poetry install --with dev,colnomic,panoptic
+
+   # Install PyTorch nightly
+   poetry run pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+   ```
+
+3. **Activate the Poetry environment:**
+   ```bash
+   poetry shell
+   ```
+
+4. **Run a specific project:**
+   ```bash
+   poetry run python colnomic_qdrant_rag/main.py
+   poetry run python eomt_panoptic_seg/app.py
+   ```
+
+
 
 ## 📖 Project Structure
 
 ```
 little-scripts/
-├── colnomic_qdrant_rag/           # Col Based RAG System
-├── eomt_panoptic_seg/             # EOMT Panoptic Segmentation App
-└── [future-projects]/             # Additional projects will be added here
+├── pyproject.toml                 # Poetry configuration with dependency groups
+├── setup.py                      # Automated setup script for easy installation
+├── colnomic_qdrant_rag/          # Col Based RAG System
+├── eomt_panoptic_seg/            # EOMT Panoptic Segmentation App
+└── [future-projects]/            # Additional projects will be added here
 ```
+
+## 🔧 Dependency Management
+
+This monorepo uses **Poetry** for unified dependency management with optional dependency groups for each project. All packages are configured to use the latest compatible versions (using "*" constraints) to maintain flexibility and match the original requirements.txt approach.
+
+### Project Structure
+
+- **Base dependencies**: Common packages used across multiple projects (requests, pillow, numpy, etc.)
+- **dev group**: Development tools (pre-commit, ruff, testing tools)
+- **colnomic group**: Dependencies specific to the ColPali Qdrant RAG project
+- **panoptic group**: Dependencies specific to the EOMT Panoptic Segmentation project
+
+### Manual Installation Alternative
+
+If you prefer manual control over the installation process:
+
+```bash
+# 1. Install Poetry dependencies
+poetry install --with dev,colnomic,panoptic  # Everything
+poetry install --with dev,colnomic           # ColPali Qdrant RAG project
+poetry install --with dev,panoptic           # EOMT Panoptic Segmentation project
+
+# 2. Install PyTorch nightly (required for all projects)
+poetry run pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+```
+
+### Adding New Dependencies
+
+#### Add to base dependencies (shared across projects)
+```bash
+poetry add requests
+```
+
+#### Add to development dependencies
+```bash
+poetry add --group dev pytest
+```
+
+#### Add to project-specific groups
+```bash
+poetry add --group colnomic new-package
+poetry add --group panoptic another-package
+```
+
+### Managing Dependencies
+
+```bash
+# Update dependencies
+poetry update
+
+# Show installed packages
+poetry show
+
+# Show dependency tree
+poetry show --tree
+
+# Lock current versions
+poetry lock
+
+# Export requirements (if needed for Docker/CI)
+poetry export -f requirements.txt --output requirements.txt
+poetry export -f requirements.txt --with dev,colnomic --output requirements-colnomic.txt
+poetry export -f requirements.txt --with dev,panoptic --output requirements-panoptic.txt
+```
+
+### Special Notes
+
+#### PyTorch Nightly Installation
+PyTorch nightly builds are required for all projects (commented out of Poetry dependencies to avoid conflicts):
+```bash
+poetry run pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+```
+
+This ensures compatibility with newer NVIDIA GPUs and provides the latest PyTorch features across all projects.
+
+#### System Dependencies
+Some packages require system-level dependencies:
+
+**PDF2Image (for ColPali project):**
+- **Windows**: Download from https://github.com/oschwartz10612/poppler-windows/releases/
+- **Mac**: `brew install poppler`
+- **Linux**: `sudo apt-get install poppler-utils`
+
+### Benefits Over requirements.txt
+
+1. **Dependency Resolution**: Poetry automatically resolves compatible versions
+2. **Lock Files**: `poetry.lock` ensures reproducible builds
+3. **Virtual Environment Management**: Built-in venv handling
+4. **Dependency Groups**: Optional groups for different project needs
+5. **Unified Management**: Single configuration for the entire monorepo
+
+This approach eliminates duplicate dependency management while allowing each project to have its specific requirements.
 
 ## 🤝 Contributing
 
