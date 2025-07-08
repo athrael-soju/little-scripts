@@ -8,7 +8,7 @@ load_dotenv()
 
 # Qdrant Configuration
 QDRANT_URL = "http://localhost:6333"
-COLLECTION_NAME = "le-collection"
+COLLECTION_NAME = "le-collection-2"
 
 # Model Configuration
 MODEL_NAME = "nomic-ai/colnomic-embed-multimodal-3b"
@@ -21,6 +21,11 @@ DISTANCE_METRIC = "Cosine"  # Using string representation for simplicity
 # Indexing Configuration
 BATCH_SIZE = 4
 OPTIMIZE_COLLECTION = False
+
+# Background processing settings
+MINIO_UPLOAD_WORKERS = 4       # Number of concurrent MinIO upload workers
+MINIO_UPLOAD_RETRY_ATTEMPTS = 3  # Number of retry attempts for failed uploads
+MINIO_UPLOAD_TIMEOUT = 30      # Timeout for background worker shutdown in seconds
 
 # Search Configuration
 SEARCH_LIMIT = 3
@@ -47,5 +52,5 @@ OPENAI_TEMPERATURE = 0.7
 MINIO_ENDPOINT = "localhost:9000"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
-MINIO_BUCKET = "le-images"
+MINIO_BUCKET = "le-images-2"
 MINIO_USE_SSL = False

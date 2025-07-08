@@ -1,5 +1,3 @@
-import time
-
 import stamina
 from qdrant_client import QdrantClient, models
 
@@ -33,9 +31,6 @@ class QdrantHandler:
     def create_collection(self):
         """Create Qdrant collection with binary quantization if it doesn't exist."""
         if self.collection_exists():
-            print(
-                f"Collection '{self.collection_name}' already exists. Skipping creation."
-            )
             return
 
         self.client.create_collection(
@@ -70,8 +65,7 @@ class QdrantHandler:
             )
             return True
         except Exception as e:
-            print(f"Error during upsert: {e}")
-            return False
+            raise e  # Let the pipeline handle the error
 
     def optimize_collection(self):
         """Optimize the collection for searching."""
@@ -82,7 +76,6 @@ class QdrantHandler:
 
     def search(self, query_embedding, limit, oversampling):
         """Search for documents using a query embedding."""
-        start_time = time.time()
         search_result = self.client.query_points(
             collection_name=self.collection_name,
             query=query_embedding,
@@ -93,9 +86,9 @@ class QdrantHandler:
                     ignore=False,
                     rescore=True,
                     oversampling=oversampling,
-                )
+                ),
+                hnsw_ef=128,  # Increased for better search quality
             ),
         )
-        end_time = time.time()
-        print(f"Search completed in {end_time - start_time:.4f} seconds")
+
         return search_result

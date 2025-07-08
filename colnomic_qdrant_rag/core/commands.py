@@ -302,6 +302,14 @@ def upload(pipeline, file_path=None, interactive=False):
         )
         colored_print("🎉 Documents indexed successfully!", Colors.OKGREEN)
 
+        # Show background processing status
+        upload_status = pipeline.get_upload_status()
+        if upload_status["pending"] > 0:
+            colored_print(
+                f"📤 Background processing: {upload_status['completed']}/{upload_status['total']} completed, {upload_status['pending']} pending",
+                Colors.OKCYAN,
+            )
+
         if interactive:
             colored_print(
                 "\n💡 You can now ask questions directly! Just type what you want to know.",
@@ -362,7 +370,7 @@ def clear(vector_db, minio_handler=None, interactive=False):
     return success
 
 
-def status(vector_db, openai_handler, minio_handler):
+def status(vector_db, openai_handler, minio_handler, pipeline=None):
     """Shows the current status of the system."""
     colored_print("📊 System Status", Colors.HEADER)
     colored_print("=" * 60, Colors.HEADER)
@@ -467,13 +475,51 @@ def status(vector_db, openai_handler, minio_handler):
             )
 
         # ================================================================
+        # BACKGROUND PROCESSING STATUS
+        # ================================================================
+        if pipeline:
+            colored_print("\n📤 Image Processing Status", Colors.HEADER)
+            colored_print("=" * 60, Colors.HEADER)
+
+            upload_status = pipeline.get_upload_status()
+            if upload_status["total"] > 0:
+                colored_print(
+                    f"├─ Total Tasks:          {upload_status['total']}", Colors.OKCYAN
+                )
+                colored_print(
+                    f"├─ Completed:            {upload_status['completed']}",
+                    Colors.OKGREEN,
+                )
+                colored_print(
+                    f"├─ Failed:               {upload_status['failed']}",
+                    Colors.FAIL if upload_status["failed"] > 0 else Colors.OKCYAN,
+                )
+                colored_print(
+                    f"├─ Pending:              {upload_status['pending']}",
+                    Colors.WARNING if upload_status["pending"] > 0 else Colors.OKCYAN,
+                )
+                colored_print(
+                    f"└─ Queue Size:           {upload_status['queue_size']}",
+                    Colors.OKCYAN,
+                )
+
+                if upload_status["pending"] > 0:
+                    colored_print(
+                        "   💡 Background image processing is still running",
+                        Colors.OKCYAN,
+                    )
+            else:
+                colored_print("└─ No processing tasks in queue", Colors.OKCYAN)
+
+        # ================================================================
         # MODEL CONFIGURATION
         # ================================================================
         colored_print("\n🤖 Model Configuration", Colors.HEADER)
         colored_print("=" * 60, Colors.HEADER)
         colored_print(f"├─ ColPali Model:        {config.MODEL_NAME}", Colors.OKCYAN)
         colored_print(f"├─ OpenAI Model:         {config.OPENAI_MODEL}", Colors.OKCYAN)
-        colored_print(f"└─ Search Limit:         {config.SEARCH_LIMIT}", Colors.OKCYAN)
+        colored_print(f"├─ Search Limit:         {config.SEARCH_LIMIT}", Colors.OKCYAN)
+        colored_print("└─ Background Processing: Enabled", Colors.OKGREEN)
 
         # ================================================================
         # SYSTEM SUMMARY
