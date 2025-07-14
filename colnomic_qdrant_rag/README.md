@@ -17,15 +17,15 @@ This application provides an intelligent document retrieval system that can:
 ### Key Features
 
 - 🔍 **Natural Language Search**: Query documents using plain English
-- 🤖 **AI-Powered Analysis**: Get conversational responses about document content
+- 🤖 **AI-Powered Conversational Interface**: Direct conversational mode by default
 - 📄 **PDF Support**: Automatically process and index PDF documents
 - 🖼️ **Image Understanding**: Advanced visual document analysis using ColPali
 - ⚡ **Binary Quantization**: Efficient storage with minimal quality loss
-- 🎯 **Interactive CLI**: User-friendly command-line interface
+- 🎯 **Streamlined CLI**: Simplified conversational interface
 - 🐳 **Docker Ready**: Easy deployment with Docker Compose
 - 🎨 **Configurable Image Formats**: JPEG/PNG with quality control for performance optimization
 - 🚀 **Background Processing**: Decoupled image processing for 2-3x faster indexing
-- 📊 **Streamlined Metrics**: Clean, minimal logging with useful performance summaries
+- 📊 **Enhanced Error Handling**: Robust error management and service monitoring
 - ⚡ **Optimized Performance**: Efficient processing with real-time metrics tracking
 
 ## 🏗️ Architecture
@@ -40,7 +40,8 @@ This application provides an intelligent document retrieval system that can:
 - **Qdrant Vector Database**: High-performance vector search with binary quantization
 - **MinIO Object Storage**: Scalable image and document storage with configurable formats
 - **OpenAI Integration**: Enhanced conversational analysis capabilities
-- **Metrics System**: Real-time processing metrics with clean summaries
+- **Service Manager**: Robust service initialization with graceful fallbacks
+- **Background Processing**: Optimized image upload and processing pipeline
 
 ## 🎯 Why Colnomic?
 
@@ -113,7 +114,7 @@ We've implemented an advanced **two-stage retrieval optimization** inspired by t
 ### Configuration
 
 ```python
-# Enable the optimization
+# Enable the optimization (now enabled by default)
 ENABLE_RERANKING_OPTIMIZATION = True
 
 # Tuning parameters
@@ -206,41 +207,38 @@ MINIO_SECRET_KEY=minioadmin
 ### 4. Run the Application
 
 ```bash
-# Interactive mode (recommended for beginners)
-python main.py interactive
+# Start conversational mode (default)
+python main.py
 
-# Or use direct commands
-python main.py upload  # Index default UFO dataset
-python main.py ask "What are some interesting UFO sightings?"
+# Or upload documents first, then start conversation
+python main.py upload --file my_document.pdf
 ```
 
 ## 💻 Usage
 
-### Interactive Mode
+### Conversational Mode (Default)
 
-The interactive mode provides the most user-friendly experience:
+The application starts in conversational mode by default - simply run and ask questions:
 
 ```bash
-python main.py interactive
+python main.py
 ```
 
-Once in interactive mode, you can:
+Once running, you can:
 
 ```
-🔍 colpali[Basic]> What are UFO sightings in California?
-🔍 colpali[Basic]> set-mode conversational
-🤖 colpali[Conversational]> Analyze the visual patterns in these documents
-🔍 colpali[Basic]> upload --file my_document.pdf
-🔍 colpali[Basic]> show-status
-🔍 colpali[Basic]> clear-data
+🤖 colpali> What are UFO sightings in California?
+🤖 colpali> upload --file my_document.pdf
+🤖 colpali> show-status
+🤖 colpali> clear-data
+🤖 colpali> help
+🤖 colpali> exit
 ```
 
 ### Available Commands
 
 #### Interactive Mode Commands
 - **Direct queries**: Just type your question (e.g., "What are UFO sightings?")
-- **`set-mode basic`**: Switch to basic search mode (fast document retrieval)
-- **`set-mode conversational`**: Switch to AI-powered conversational mode
 - **`upload [--file path]`**: Upload and index documents
 - **`clear-data`**: Clear all documents and images
 - **`show-status`**: Display system status
@@ -250,32 +248,24 @@ Once in interactive mode, you can:
 #### Command Line Interface
 
 ```bash
-# Search Commands
-python main.py ask "UFO sightings in Texas"                    # Basic search
-python main.py analyze "What do these UFO images reveal?"      # AI-powered analysis
+# Conversational mode (default)
+python main.py                                          # Start conversational mode
 
-# Document Management
-python main.py upload --file path/to/document.pdf             # Upload specific file
-python main.py upload                                          # Use default UFO dataset
-python main.py clear-data                                # Clear all documents
-python main.py show-status                                     # System status
-
-# Interactive Mode
-python main.py interactive                                      # Start interactive mode
+# Single command execution
+python main.py upload --file path/to/document.pdf      # Upload specific file
+python main.py upload                                   # Use default UFO dataset
+python main.py clear-data                               # Clear all documents
+python main.py show-status                              # System status
 ```
 
-### Search Modes
+### Key Changes from Previous Versions
 
-1. **Basic Mode** 🔍
-   - Fast document retrieval
-   - Returns relevant documents with similarity scores
-   - Optimal for quick searches
+🎯 **Simplified Interface**: The system now starts directly in conversational mode - no more mode switching required!
 
-2. **Conversational Mode** 🤖
-   - AI-powered responses using OpenAI
-   - Contextual analysis of retrieved documents
-   - Streaming responses with citations
-   - Requires OpenAI API key
+- ✅ **Conversational cli**: AI-powered responses out of the box
+- ✅ **Streamlined commands**: Fewer commands, more intuitive usage
+- ✅ **Enhanced error handling**: Better error messages and recovery
+- ✅ **Improved service management**: Graceful fallbacks for optional services
 
 ## 📊 Performance Metrics
 
@@ -321,8 +311,8 @@ DISTANCE_METRIC = "Cosine"
 SEARCH_LIMIT = 3          # Number of results to return
 OVERSAMPLING = 2.0        # Improve recall with oversampling
 
-# Mean Pooling and Reranking Optimization (NEW!)
-ENABLE_RERANKING_OPTIMIZATION = False  # Set to True for multi-vector reranking
+# Mean Pooling and Reranking Optimization (ENABLED BY DEFAULT!)
+ENABLE_RERANKING_OPTIMIZATION = True  # Multi-vector collections with mean-pooled embeddings
 RERANKING_PREFETCH_LIMIT = 200  # Candidates retrieved with pooled vectors
 RERANKING_SEARCH_LIMIT = 20     # Final results after reranking
 
@@ -332,7 +322,7 @@ MINIO_UPLOAD_WORKERS = 4  # Concurrent MinIO upload workers (increase for faster
 OPTIMIZE_COLLECTION = False  # Enable collection optimization
 
 # Image Configuration
-IMAGE_FORMAT = "JPEG"     # Options: "PNG", "JPEG"
+IMAGE_FORMAT = "JPEG"     # Options: "PNG", "JPEG" - JPEG is faster and smaller
 IMAGE_QUALITY = 85        # JPEG quality (1-100), ignored for PNG
 MAX_SAVE_IMAGES = 3       # Maximum images to save per query
 
@@ -383,10 +373,15 @@ colnomic_qdrant_rag/
 ├── docker-compose.yml     # Infrastructure services
 ├── utils.py              # Utility functions
 ├── core/                 # Core application logic
+│   ├── __init__.py      # Package initialization
 │   ├── cli.py           # Command-line interface
 │   ├── commands.py      # Command implementations
-│   └── pipeline.py      # Document processing pipeline
+│   ├── command_registry.py  # Command registry system
+│   ├── pipeline.py      # Document processing pipeline
+│   ├── error_handling.py    # Error handling and service management
+│   └── messaging.py     # Unified messaging system
 └── handlers/            # External service handlers
+    ├── __init__.py      # Package initialization
     ├── model.py        # ColPali model operations
     ├── qdrant.py       # Vector database operations
     ├── minio.py        # Object storage operations
@@ -397,11 +392,11 @@ colnomic_qdrant_rag/
 
 ### Mean Pooling and Reranking Optimization
 
-**Important:** When enabling reranking optimization, you must **recreate your collection** as it changes the vector configuration:
+**Note:** Reranking optimization is now **enabled by default**. If you have existing collections, you may need to **recreate your collection** when changing this setting:
 
 ```bash
 python main.py clear-data  # Clear existing collection
-python main.py upload            # Rebuild with new optimization
+python main.py upload      # Rebuild with current optimization settings
 ```
 
 ### Custom Model Configuration
@@ -426,7 +421,7 @@ IMAGE_QUALITY = 75                # Lower quality for faster processing
 
 #### **For Faster Search:**
 ```python
-# Enable reranking optimization (recommended for 500+ pages)
+# Reranking optimization is enabled by default
 ENABLE_RERANKING_OPTIMIZATION = True
 RERANKING_PREFETCH_LIMIT = 150    # Fewer candidates for speed
 OVERSAMPLING = 1.5                # Reduce oversampling for speed
@@ -446,9 +441,9 @@ IMAGE_QUALITY = 70                # Lower quality images
 | Collection Size | ENABLE_RERANKING_OPTIMIZATION | RERANKING_PREFETCH_LIMIT | Expected Search Time |
 |----------------|-------------------------------|-------------------------|-------------------|
 | **< 100 pages** | `False` | N/A | 0.05-0.1s |
-| **100-500 pages** | `False` or `True` | 100-150 | 0.1-0.2s |
-| **500-2,000 pages** | `True` | 150-300 | 0.05-0.15s |
-| **2,000+ pages** | `True` | 300-500 | 0.1-0.3s |
+| **100-500 pages** | `True` (default) | 100-150 | 0.1-0.2s |
+| **500-2,000 pages** | `True` (default) | 150-300 | 0.05-0.15s |
+| **2,000+ pages** | `True` (default) | 300-500 | 0.1-0.3s |
 
 ### GPU Optimization
 
@@ -515,7 +510,11 @@ Access service dashboards:
    export HF_TOKEN=your_huggingface_token
    ```
 
-
+5. **OpenAI API Issues**
+   ```bash
+   # Check your API key and model settings
+   # The system will work without OpenAI, but with limited conversational features
+   ```
 
 ### Understanding Metrics
 
@@ -525,6 +524,21 @@ The system provides key performance indicators:
 - **Batch Success Rate**: Percentage of successful batch operations
 - **Upload Success Rate**: Background image upload completion rate
 - **Search Performance**: Query response time in seconds
+
+### Service Status
+
+Use the `show-status` command to check system health:
+
+```bash
+python main.py show-status
+```
+
+This provides detailed information about:
+- Connection status for all services
+- Collection statistics
+- Background processing status
+- Model configuration
+- System readiness
 
 ## 🤝 Contributing
 
@@ -540,7 +554,7 @@ The system provides key performance indicators:
 uv pip install -r requirements.txt
 
 # Run the application
-python main.py interactive
+python main.py
 ```
 
 ## 📄 License
