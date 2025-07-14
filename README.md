@@ -86,6 +86,31 @@ little-scripts/
 
 We welcome contributions to any of the projects in this monorepo!
 
+### Development Setup
+
+Before contributing, please set up pre-commit hooks to ensure code quality:
+
+1. **Install pre-commit:**
+   ```bash
+   pip install pre-commit
+   ```
+
+2. **Install the hooks:**
+   ```bash
+   pre-commit install
+   ```
+
+3. **Run hooks on all files (optional):**
+   ```bash
+   pre-commit run --all-files
+   ```
+
+The pre-commit hooks will automatically run on each commit to check for:
+- Code formatting and style
+- Import sorting
+- Trailing whitespace and other common issues
+- Project-specific linting rules
+
 ### Adding a New Project
 
 1. Create a new directory for your project

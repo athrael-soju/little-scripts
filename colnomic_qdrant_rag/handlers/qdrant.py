@@ -141,7 +141,6 @@ class QdrantHandler:
                     rescore=True,
                     oversampling=oversampling,
                 ),
-                hnsw_ef=128,  # Increased for better search quality
             ),
         )
         return search_result
