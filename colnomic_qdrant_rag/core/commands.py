@@ -11,10 +11,20 @@ from pdf2image import convert_from_path
 from pypdf import PdfReader
 from utils import Colors, colored_print
 
-from .error_handling import (SERVICE_MANAGER, CriticalError, ErrorHandler,
-                             ValidationManager, safe_execution)
-from .messaging import (InteractiveHelp, SetupMessages, StatusDisplay,
-                        UIMessages, ValidationMessages)
+from .error_handling import (
+    SERVICE_MANAGER,
+    CriticalError,
+    ErrorHandler,
+    ValidationManager,
+    safe_execution,
+)
+from .messaging import (
+    InteractiveHelp,
+    SetupMessages,
+    StatusDisplay,
+    UIMessages,
+    ValidationMessages,
+)
 from .pipeline import RetrievalPipeline
 
 
@@ -42,9 +52,7 @@ def setup_pipeline(include_openai=False):
             try:
                 openai_handler = OpenAIHandler()
                 if openai_handler.is_available():
-                    SERVICE_MANAGER.register_service(
-                        "OpenAI", lambda: openai_handler
-                    )
+                    SERVICE_MANAGER.register_service("OpenAI", lambda: openai_handler)
                     SetupMessages.service_configured("OpenAI integration")
             except Exception as e:
                 # OpenAI is optional - log but don't fail
