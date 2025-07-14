@@ -8,7 +8,7 @@ load_dotenv()
 
 # Qdrant Configuration
 QDRANT_URL = "http://localhost:6333"
-COLLECTION_NAME = "le-collection"
+COLLECTION_NAME = "le-collection-3"
 
 # Model Configuration
 MODEL_NAME = "nomic-ai/colnomic-embed-multimodal-3b"
@@ -57,5 +57,5 @@ OPENAI_TEMPERATURE = 0.7
 MINIO_ENDPOINT = "localhost:9000"
 MINIO_ACCESS_KEY = "minioadmin"
 MINIO_SECRET_KEY = "minioadmin"
-MINIO_BUCKET = "le-images"
+MINIO_BUCKET = "le-images-3"
 MINIO_USE_SSL = False

@@ -1,0 +1,1 @@
+# Utilities package for Vespa Vision RAG 

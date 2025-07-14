@@ -1,0 +1,56 @@
+services:
+  vespa:
+    image: vespaengine/vespa:latest
+    container_name: vespa-vision-rag
+    hostname: vespa-container
+    ports:
+      - "8080:8080"  # Search and feed interfaces
+      - "19071:19071"  # Config server endpoint
+    environment:
+      - VESPA_CONFIGSERVERS=vespa-container
+    volumes:
+      - vespa_data:/opt/vespa/var
+      - ./app:/app:ro  # Mount application package as read-only
+    mem_limit: 4g
+    mem_reservation: 2g
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ApplicationStatus"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - vespa-network
+
+  # Optional: Application service for running the Python application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vespa-vision-rag-app
+    depends_on:
+      vespa:
+        condition: service_healthy
+    environment:
+      - VESPA_ENDPOINT=http://vespa:8080
+      - VESPA_TEAM_API_KEY=${VESPA_TEAM_API_KEY}
+    volumes:
+      - ./:/app
+      - app_data:/app/data
+    working_dir: /app
+    command: python main.py
+    networks:
+      - vespa-network
+    profiles:
+      - app  # Only start with --profile app
+
+volumes:
+  vespa_data:
+    driver: local
+  app_data:
+    driver: local
+
+networks:
+  vespa-network:
+    driver: bridge

@@ -1,0 +1,1 @@
+# Search client package for Vespa Vision RAG 

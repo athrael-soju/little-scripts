@@ -1,0 +1,24 @@
+# Core dependencies
+torch>=2.0.0
+numpy
+tqdm
+
+# ColPali engine for ColQwen2
+colpali-engine
+
+# PDF processing
+pdf2image
+pypdf
+
+# Vespa client
+pyvespa
+vespacli
+
+# Web requests
+requests
+
+# Environment variables
+python-dotenv
+
+# Image processing
+Pillow
