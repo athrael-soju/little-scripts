@@ -1,6 +1,6 @@
 """
 Unified error handling system for consistent error management.
-This module provides centralized error handling patterns and fallback mechanisms.
+This module provides centralized error handling patterns.
 """
 
 import sys
@@ -89,41 +89,6 @@ class ErrorHandler:
             UIMessages.error(message)
             return False
 
-    @staticmethod
-    def with_fallback(
-        primary_func: Callable,
-        fallback_func: Optional[Callable] = None,
-        error_message: Optional[str] = None,
-        context: Optional[str] = None,
-    ) -> Any:
-        """
-        Execute a function with fallback handling.
-
-        Args:
-            primary_func: The primary function to execute
-            fallback_func: Optional fallback function if primary fails
-            error_message: Custom error message
-            context: Context information
-
-        Returns:
-            Result of primary_func or fallback_func
-        """
-        try:
-            return primary_func()
-        except Exception as e:
-            if error_message:
-                UIMessages.error(error_message)
-            else:
-                ErrorHandler.handle_error(e, context)
-
-            if fallback_func:
-                try:
-                    return fallback_func()
-                except Exception as fallback_error:
-                    ErrorHandler.handle_error(fallback_error, f"Fallback for {context}")
-
-            return None
-
 
 def safe_execution(context: Optional[str] = None, return_on_error: Any = False):
     """
@@ -149,39 +114,35 @@ def safe_execution(context: Optional[str] = None, return_on_error: Any = False):
 
 
 class ServiceManager:
-    """Manager for service initialization with graceful fallbacks."""
+    """Manager for service initialization."""
 
     def __init__(self):
         self.services: Dict[str, Any] = {}
         self.service_status: Dict[str, bool] = {}
 
-    def register_service(
-        self, name: str, factory: Callable, required: bool = True
-    ) -> bool:
+    def register_service(self, name: str, factory: Callable) -> Any:
         """
-        Register and initialize a service with error handling.
+        Register and initialize a service.
 
         Args:
             name: Service name
             factory: Factory function to create the service
-            required: Whether the service is required for operation
 
         Returns:
-            bool: True if service was successfully initialized
+            The initialized service
+
+        Raises:
+            ServiceError: If service initialization fails
         """
         try:
             service = factory()
             self.services[name] = service
             self.service_status[name] = True
             SetupMessages.service_configured(name)
-            return True
+            return service
         except Exception as e:
             self.service_status[name] = False
-            if required:
-                raise ServiceError(name, str(e))
-            else:
-                SetupMessages.service_failed(name, str(e))
-                return False
+            raise ServiceError(name, str(e))
 
     def get_service(self, name: str) -> Optional[Any]:
         """Get a registered service."""

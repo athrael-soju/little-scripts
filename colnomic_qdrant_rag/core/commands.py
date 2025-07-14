@@ -31,39 +31,24 @@ def setup_pipeline(include_openai=False):
             config.DISTANCE_METRIC,
         )
 
-        # Initialize MinIO handler (optional service)
-        minio_success = SERVICE_MANAGER.register_service(
-            "MinIO", lambda: MinioHandler(), required=False
+        # Initialize MinIO handler (required service)
+        minio_handler = SERVICE_MANAGER.register_service(
+            "MinIO", lambda: MinioHandler()
         )
-        if minio_success:
-            minio_handler = SERVICE_MANAGER.get_service("MinIO")
-        else:
-            minio_handler = None
-            SetupMessages.service_disabled(
-                "MinIO", "Image upload/analysis will be disabled"
-            )
 
         # Initialize OpenAI handler (optional service)
         openai_handler = None
-        if include_openai:
+        if include_openai and config.OPENAI_API_KEY:
             try:
                 openai_handler = OpenAIHandler()
                 if openai_handler.is_available():
                     SERVICE_MANAGER.register_service(
-                        "OpenAI", lambda: openai_handler, required=False
+                        "OpenAI", lambda: openai_handler
                     )
                     SetupMessages.service_configured("OpenAI integration")
-                else:
-                    SetupMessages.service_failed(
-                        "OpenAI",
-                        "API key not found, continuing without conversational responses",
-                    )
-                    openai_handler = None
             except Exception as e:
+                # OpenAI is optional - log but don't fail
                 SetupMessages.service_failed("OpenAI", str(e))
-                SetupMessages.service_disabled(
-                    "OpenAI", "Continuing without conversational features"
-                )
                 openai_handler = None
 
         pipeline = RetrievalPipeline(
@@ -311,7 +296,7 @@ def upload(pipeline, file_path=None, interactive=False):
 
 
 @safe_execution(context="Data clearing", return_on_error=False)
-def clear(vector_db, minio_handler=None, interactive=False):
+def clear(vector_db, minio_handler, interactive=False):
     """Clears the vector database collection and MinIO bucket."""
     if interactive:
         UIMessages.warning(
@@ -335,17 +320,14 @@ def clear(vector_db, minio_handler=None, interactive=False):
         UIMessages.error(f"Error clearing Qdrant collection: {e}")
         success = False
 
-    # Clear MinIO bucket if handler is provided
-    if minio_handler:
-        try:
-            UIMessages.warning("Clearing MinIO bucket...")
-            minio_handler.clear_bucket()
-            UIMessages.success("MinIO bucket cleared")
-        except Exception as e:
-            UIMessages.error(f"Error clearing MinIO bucket: {e}")
-            success = False
-    else:
-        UIMessages.warning("MinIO handler not available - skipping image cleanup")
+    # Clear MinIO bucket
+    try:
+        UIMessages.warning("Clearing MinIO bucket...")
+        minio_handler.clear_bucket()
+        UIMessages.success("MinIO bucket cleared")
+    except Exception as e:
+        UIMessages.error(f"Error clearing MinIO bucket: {e}")
+        success = False
 
     if success:
         UIMessages.success("All data cleared successfully")
@@ -390,21 +372,17 @@ def status(vector_db, openai_handler, minio_handler, pipeline=None):
             UIMessages.tip("Set OPENAI_API_KEY for conversational mode")
 
         # Check MinIO connection
-        if minio_handler:
-            try:
-                minio_handler.ensure_bucket_exists()
-                UIMessages.connection_status(
-                    "MinIO",
-                    True,
-                    {"Endpoint": config.MINIO_ENDPOINT, "Bucket": config.MINIO_BUCKET},
-                )
-            except Exception as e:
-                UIMessages.connection_status(
-                    "MinIO", False, {"Endpoint": config.MINIO_ENDPOINT, "Error": str(e)}
-                )
-        else:
-            UIMessages.warning("MinIO: Not Configured")
-            UIMessages.tip("Image storage will be disabled")
+        try:
+            minio_handler.ensure_bucket_exists()
+            UIMessages.connection_status(
+                "MinIO",
+                True,
+                {"Endpoint": config.MINIO_ENDPOINT, "Bucket": config.MINIO_BUCKET},
+            )
+        except Exception as e:
+            UIMessages.connection_status(
+                "MinIO", False, {"Endpoint": config.MINIO_ENDPOINT, "Error": str(e)}
+            )
 
         # ================================================================
         # COLLECTION STATUS

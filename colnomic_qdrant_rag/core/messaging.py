@@ -262,11 +262,6 @@ class SetupMessages:
         UIMessages.warning(f"{service} setup failed: {error}")
 
     @staticmethod
-    def service_disabled(service: str, reason: str):
-        """Display service disabled message."""
-        UIMessages.tip(f"{service} {reason}")
-
-    @staticmethod
     def goodbye():
         """Display goodbye message."""
         UIMessages.success("👋 Goodbye!")

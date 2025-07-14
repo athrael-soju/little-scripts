@@ -40,7 +40,6 @@ This application provides an intelligent document retrieval system that can:
 - **Qdrant Vector Database**: High-performance vector search with binary quantization
 - **MinIO Object Storage**: Scalable image and document storage with configurable formats
 - **OpenAI Integration**: Enhanced conversational analysis capabilities
-- **Service Manager**: Robust service initialization with graceful fallbacks
 - **Background Processing**: Optimized image upload and processing pipeline
 
 ## 🎯 Why Colnomic?
@@ -265,7 +264,6 @@ python main.py show-status                              # System status
 - ✅ **Conversational cli**: AI-powered responses out of the box
 - ✅ **Streamlined commands**: Fewer commands, more intuitive usage
 - ✅ **Enhanced error handling**: Better error messages and recovery
-- ✅ **Improved service management**: Graceful fallbacks for optional services
 
 ## 📊 Performance Metrics
 
