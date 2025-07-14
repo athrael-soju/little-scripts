@@ -232,7 +232,7 @@ Once in interactive mode, you can:
 🤖 colpali[Conversational]> Analyze the visual patterns in these documents
 🔍 colpali[Basic]> upload --file my_document.pdf
 🔍 colpali[Basic]> show-status
-🔍 colpali[Basic]> clear-collection
+🔍 colpali[Basic]> clear-data
 ```
 
 ### Available Commands
@@ -242,7 +242,7 @@ Once in interactive mode, you can:
 - **`set-mode basic`**: Switch to basic search mode (fast document retrieval)
 - **`set-mode conversational`**: Switch to AI-powered conversational mode
 - **`upload [--file path]`**: Upload and index documents
-- **`clear-collection`**: Clear all documents and images
+- **`clear-data`**: Clear all documents and images
 - **`show-status`**: Display system status
 - **`help`**: Show help information
 - **`exit`**: Exit interactive mode
@@ -257,7 +257,7 @@ python main.py analyze "What do these UFO images reveal?"      # AI-powered anal
 # Document Management
 python main.py upload --file path/to/document.pdf             # Upload specific file
 python main.py upload                                          # Use default UFO dataset
-python main.py clear-collection                                # Clear all documents
+python main.py clear-data                                # Clear all documents
 python main.py show-status                                     # System status
 
 # Interactive Mode
@@ -400,7 +400,7 @@ colnomic_qdrant_rag/
 **Important:** When enabling reranking optimization, you must **recreate your collection** as it changes the vector configuration:
 
 ```bash
-python main.py clear-collection  # Clear existing collection
+python main.py clear-data  # Clear existing collection
 python main.py upload            # Rebuild with new optimization
 ```
 

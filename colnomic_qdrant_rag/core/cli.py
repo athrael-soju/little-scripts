@@ -116,7 +116,7 @@ Examples:
   %(prog)s                                                    # Start conversational mode (default)
   %(prog)s upload --file documents.txt                        # Upload documents and start conversation
   %(prog)s show-status                                        # Quick status check
-  %(prog)s clear-collection                                   # Clear data
+  %(prog)s clear-data                                         # Clear data
 
 Note: For questions about your documents, just run the app and ask directly!
         """,
