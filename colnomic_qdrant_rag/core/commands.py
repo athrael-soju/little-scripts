@@ -1,5 +1,4 @@
 import os
-import sys
 from pathlib import Path
 
 import config
@@ -10,14 +9,20 @@ from handlers.openai import OpenAIHandler
 from handlers.qdrant import QdrantHandler
 from pdf2image import convert_from_path
 from pypdf import PdfReader
-from utils import Colors, colored_print, validate_file_path, validate_query
+from utils import Colors, colored_print
 
+from .error_handling import (SERVICE_MANAGER, CriticalError, ErrorHandler,
+                             ValidationManager, safe_execution)
+from .messaging import (InteractiveHelp, SetupMessages, StatusDisplay,
+                        UIMessages, ValidationMessages)
 from .pipeline import RetrievalPipeline
 
 
+@safe_execution(context="Pipeline setup", return_on_error=None)
 def setup_pipeline(include_openai=False):
     """Initializes and returns the model_handler, vector_db, and pipeline."""
     try:
+        # Initialize core services
         model_handler = ModelHandler(config.MODEL_NAME, config.PROCESSOR_NAME)
         vector_db = QdrantHandler(
             config.QDRANT_URL,
@@ -26,33 +31,24 @@ def setup_pipeline(include_openai=False):
             config.DISTANCE_METRIC,
         )
 
-        # Initialize MinIO handler
-        minio_handler = None
-        try:
-            minio_handler = MinioHandler()
-            colored_print("🔗 MinIO connection configured", Colors.OKGREEN)
-        except Exception as e:
-            colored_print(f"⚠️  MinIO setup failed: {e}", Colors.WARNING)
-            colored_print("💡 Image upload/analysis will be disabled", Colors.OKCYAN)
+        # Initialize MinIO handler (required service)
+        minio_handler = SERVICE_MANAGER.register_service(
+            "MinIO", lambda: MinioHandler()
+        )
 
-        # Initialize OpenAI handler if requested and available
+        # Initialize OpenAI handler (optional service)
         openai_handler = None
-        if include_openai:
+        if include_openai and config.OPENAI_API_KEY:
             try:
                 openai_handler = OpenAIHandler()
                 if openai_handler.is_available():
-                    colored_print("🤖 OpenAI integration enabled", Colors.OKGREEN)
-                else:
-                    colored_print(
-                        "⚠️  OpenAI API key not found, continuing without conversational responses",
-                        Colors.WARNING,
+                    SERVICE_MANAGER.register_service(
+                        "OpenAI", lambda: openai_handler
                     )
-                    openai_handler = None
+                    SetupMessages.service_configured("OpenAI integration")
             except Exception as e:
-                colored_print(f"⚠️  OpenAI setup failed: {e}", Colors.WARNING)
-                colored_print(
-                    "💡 Continuing without conversational features", Colors.OKCYAN
-                )
+                # OpenAI is optional - log but don't fail
+                SetupMessages.service_failed("OpenAI", str(e))
                 openai_handler = None
 
         pipeline = RetrievalPipeline(
@@ -60,31 +56,27 @@ def setup_pipeline(include_openai=False):
         )
         return model_handler, vector_db, pipeline, openai_handler
     except Exception as e:
-        colored_print(f"❌ Error setting up pipeline: {e}", Colors.FAIL)
-        sys.exit(1)
+        raise CriticalError(f"Pipeline setup failed: {e}")
 
 
+@safe_execution(context="Query execution", return_on_error=False)
 def ask(
     query, pipeline, vector_db, openai_handler, interactive=False, use_openai=False
 ):
     """Asks a question to the retrieval system."""
-    if not validate_query(query):
+    # Validate query
+    if not ValidationManager.validate_query(query):
         return False
 
-    colored_print(f"🔍 Searching for: '{query}'", Colors.OKBLUE)
+    UIMessages.info(f"Searching for: '{query}'")
 
     try:
-        # Check if collection exists
-        if (
-            not vector_db.collection_exists()
-            or vector_db.client.get_collection(config.COLLECTION_NAME).points_count == 0
+        # Validate collection state
+        if not ValidationManager.validate_collection_state(
+            vector_db, config.COLLECTION_NAME
         ):
-            colored_print("⚠️  Collection is empty or does not exist.", Colors.WARNING)
             if interactive:
-                colored_print(
-                    "💡 Use 'upload' to add documents first, then ask your questions directly",
-                    Colors.OKCYAN,
-                )
+                ValidationMessages.interactive_tip_upload()
             return False
 
         # Ensure model is loaded for searching
@@ -92,7 +84,7 @@ def ask(
 
         # Perform search with or without OpenAI analysis
         if use_openai and openai_handler:
-            colored_print("🧠 Getting conversational response...", Colors.OKCYAN)
+            UIMessages.info("Getting conversational response...")
 
             response_generator = pipeline.search_with_openai_response(
                 query, config.SEARCH_LIMIT, config.OVERSAMPLING
@@ -107,12 +99,9 @@ def ask(
                 if response_part["type"] == "results":
                     results = response_part["search_results"]
                     if not results.points:
-                        colored_print("📭 No results found.", Colors.WARNING)
+                        ValidationMessages.no_results_found()
                         if interactive:
-                            colored_print(
-                                "💡 Tip: Try different keywords or check if documents are indexed",
-                                Colors.OKCYAN,
-                            )
+                            ValidationMessages.interactive_tip_search()
                         return False
 
                     # In conversational mode, just collect citation data without displaying search results
@@ -176,29 +165,20 @@ def ask(
         else:
             results = pipeline.search(query, config.SEARCH_LIMIT, config.OVERSAMPLING)
             if not results.points:
-                colored_print("📭 No results found.", Colors.WARNING)
+                ValidationMessages.no_results_found()
                 if interactive:
-                    colored_print(
-                        "💡 Tip: Try different keywords or check if documents are indexed",
-                        Colors.OKCYAN,
-                    )
+                    ValidationMessages.interactive_tip_search()
                 return False
 
-            colored_print(
-                f"\n✅ Found {len(results.points)} results for '{query}':",
-                Colors.OKGREEN,
-            )
-            colored_print("=" * 60, Colors.HEADER)
+            StatusDisplay.show_search_results_header(query, len(results.points))
 
             for i, point in enumerate(results.points):
-                print(
-                    f"{Colors.BOLD}{i + 1:2d}.{Colors.ENDC} Document ID: {Colors.OKCYAN}{point.id}{Colors.ENDC}"
-                )
-                print(
-                    f"     Similarity Score: {Colors.OKGREEN}{point.score:.4f}{Colors.ENDC}"
-                )
+                UIMessages.info(f"{i + 1:2d}. Document ID: {point.id}")
+                UIMessages.status_item("Similarity Score", f"{point.score:.4f}")
                 if hasattr(point, "payload") and point.payload:
-                    print(f"     Source: {point.payload.get('source', 'Unknown')}")
+                    UIMessages.status_item(
+                        "Source", point.payload.get("source", "Unknown")
+                    )
                     # Show additional metadata if available
                     for key, value in point.payload.items():
                         if key not in [
@@ -207,19 +187,19 @@ def ask(
                             "batch_id",
                             "has_image",
                         ]:
-                            print(f"     {key.title()}: {value}")
+                            UIMessages.status_item(key.title(), str(value))
                     print()
 
         return True
 
     except Exception as e:
-        colored_print(f"❌ Error during search: {e}", Colors.FAIL)
-        return False
+        return ErrorHandler.handle_error(e, "Search operation")
 
 
+@safe_execution(context="Document upload", return_on_error=False)
 def upload(pipeline, file_path=None, interactive=False):
     """Uploads and indexes documents."""
-    if not validate_file_path(file_path):
+    if not ValidationManager.validate_file_path(file_path):
         return False
 
     os.environ["HF_HUB_ENABLE_HF_TRANSFER"] = "1"
@@ -230,7 +210,7 @@ def upload(pipeline, file_path=None, interactive=False):
 
     try:
         if file_path:
-            colored_print(f"📂 Loading data from file: {file_path}", Colors.OKBLUE)
+            UIMessages.info(f"Loading data from file: {file_path}")
             path = Path(file_path)
             source_name = path.name
 
@@ -253,12 +233,11 @@ def upload(pipeline, file_path=None, interactive=False):
                     reader = PdfReader(file_path)
                     total_docs = len(reader.pages)
                     documents_iterable = pdf_page_generator(file_path)
-                    colored_print(
-                        f"📄 PDF detected with {total_docs} pages. Starting stream processing...",
-                        Colors.OKCYAN,
+                    UIMessages.info(
+                        f"PDF detected with {total_docs} pages. Starting stream processing..."
                     )
                 except Exception as e:
-                    colored_print(f"❌ Error reading PDF: {e}", Colors.FAIL)
+                    UIMessages.error(f"Error reading PDF: {e}")
                     return False
             else:
                 # Handle text files by checking for an 'image' column later
@@ -268,22 +247,18 @@ def upload(pipeline, file_path=None, interactive=False):
                 total_docs = len(documents_iterable)
                 # This check is tricky for generic iterables, so we'll rely on the pipeline to handle it.
                 if "image" not in documents_iterable.features:
-                    colored_print(
-                        "❌ The loaded data does not contain images and cannot be indexed by the current pipeline.",
-                        Colors.FAIL,
+                    UIMessages.error(
+                        "The loaded data does not contain images and cannot be indexed by the current pipeline."
                     )
-                    colored_print(
-                        "💡 This pipeline is configured for image data. Please upload a supported file type (e.g., PDF) or use the default image dataset.",
-                        Colors.OKCYAN,
+                    UIMessages.tip(
+                        "This pipeline is configured for image data. Please upload a supported file type (e.g., PDF) or use the default image dataset."
                     )
                     return False
 
         else:
             source_name = config.DATASET_NAME
-            colored_print("🌐 Loading UFO dataset from Hugging Face...", Colors.OKBLUE)
-            colored_print(
-                "💡 This may take a while for the first download", Colors.OKCYAN
-            )
+            UIMessages.info("Loading UFO dataset from Hugging Face...")
+            UIMessages.tip("This may take a while for the first download")
             documents_iterable = load_dataset(
                 config.DATASET_NAME, split=config.DATASET_SPLIT
             )
@@ -292,7 +267,7 @@ def upload(pipeline, file_path=None, interactive=False):
         # The new pipeline can handle any iterable with 'image' keys, so this check is no longer needed here.
         # We'll let the pipeline raise an error if the data is invalid.
 
-        colored_print("🔧 Setting up pipeline and indexing documents...", Colors.OKBLUE)
+        UIMessages.processing_start("Setting up pipeline and indexing documents...")
         pipeline.setup()
         pipeline.index_documents(
             documents_iterable,
@@ -300,255 +275,188 @@ def upload(pipeline, file_path=None, interactive=False):
             total_docs=total_docs,
             source_name=source_name,
         )
-        colored_print("🎉 Documents indexed successfully!", Colors.OKGREEN)
+        UIMessages.processing_complete("Documents indexed successfully!")
 
         # Show background processing status
         upload_status = pipeline.get_upload_status()
         if upload_status["pending"] > 0:
-            colored_print(
-                f"📤 Background processing: {upload_status['completed']}/{upload_status['total']} completed, {upload_status['pending']} pending",
-                Colors.OKCYAN,
+            UIMessages.info(
+                f"Background processing: {upload_status['completed']}/{upload_status['total']} completed, {upload_status['pending']} pending"
             )
 
         if interactive:
-            colored_print(
-                "\n💡 You can now ask questions directly! Just type what you want to know.",
-                Colors.OKCYAN,
+            UIMessages.tip(
+                "You can now ask questions directly! Just type what you want to know."
             )
 
         return True
 
     except Exception as e:
-        colored_print(f"❌ Error during upload: {e}", Colors.FAIL)
-        return False
+        return ErrorHandler.handle_error(e, "Document upload")
 
 
-def clear(vector_db, minio_handler=None, interactive=False):
+@safe_execution(context="Data clearing", return_on_error=False)
+def clear(vector_db, minio_handler, interactive=False):
     """Clears the vector database collection and MinIO bucket."""
     if interactive:
-        colored_print(
-            "⚠️  This will permanently delete all indexed documents and images!",
-            Colors.WARNING,
+        UIMessages.warning(
+            "This will permanently delete all indexed documents and images!"
         )
         confirmation = (
             input("Are you sure you want to continue? (y/N): ").lower().strip()
         )
         if confirmation not in ["y", "yes"]:
-            colored_print("❌ Operation cancelled", Colors.OKCYAN)
+            UIMessages.info("Operation cancelled")
             return False
 
     success = True
 
     # Clear Qdrant collection
     try:
-        colored_print("🗑️  Clearing Qdrant collection...", Colors.WARNING)
+        UIMessages.warning("Clearing Qdrant collection...")
         vector_db.recreate_collection()
-        colored_print("✅ Qdrant collection cleared and recreated", Colors.OKGREEN)
+        UIMessages.success("Qdrant collection cleared and recreated")
     except Exception as e:
-        colored_print(f"❌ Error clearing Qdrant collection: {e}", Colors.FAIL)
+        UIMessages.error(f"Error clearing Qdrant collection: {e}")
         success = False
 
-    # Clear MinIO bucket if handler is provided
-    if minio_handler:
-        try:
-            colored_print("🗑️  Clearing MinIO bucket...", Colors.WARNING)
-            minio_handler.clear_bucket()
-            colored_print("✅ MinIO bucket cleared", Colors.OKGREEN)
-        except Exception as e:
-            colored_print(f"❌ Error clearing MinIO bucket: {e}", Colors.FAIL)
-            success = False
-    else:
-        colored_print(
-            "⚠️  MinIO handler not available - skipping image cleanup", Colors.WARNING
-        )
+    # Clear MinIO bucket
+    try:
+        UIMessages.warning("Clearing MinIO bucket...")
+        minio_handler.clear_bucket()
+        UIMessages.success("MinIO bucket cleared")
+    except Exception as e:
+        UIMessages.error(f"Error clearing MinIO bucket: {e}")
+        success = False
 
     if success:
-        colored_print("✅ All data cleared successfully", Colors.OKGREEN)
+        UIMessages.success("All data cleared successfully")
     else:
-        colored_print("⚠️  Some cleanup operations failed", Colors.WARNING)
+        UIMessages.warning("Some cleanup operations failed")
 
     return success
 
 
+@safe_execution(context="Status check", return_on_error=False)
 def status(vector_db, openai_handler, minio_handler, pipeline=None):
     """Shows the current status of the system."""
-    colored_print("📊 System Status", Colors.HEADER)
-    colored_print("=" * 60, Colors.HEADER)
+    StatusDisplay.show_system_status_header()
 
     try:
         # ================================================================
         # CONNECTION STATUS
         # ================================================================
-        colored_print("\n🔌 Connection Status", Colors.HEADER)
-        colored_print("=" * 60, Colors.HEADER)
+        StatusDisplay.show_connection_status_header()
 
         # Check Qdrant connection
         try:
             vector_db.client.get_collections()
-            colored_print("✅ Qdrant:               Connected", Colors.OKGREEN)
-            colored_print(
-                f"   └─ URL:               {config.QDRANT_URL}", Colors.OKCYAN
-            )
+            UIMessages.connection_status("Qdrant", True, {"URL": config.QDRANT_URL})
         except Exception:
-            colored_print("❌ Qdrant:               Disconnected", Colors.FAIL)
-            colored_print(
-                f"   └─ URL:               {config.QDRANT_URL}", Colors.OKCYAN
-            )
-            colored_print("   └─ 💡 Make sure Qdrant is running", Colors.OKCYAN)
+            UIMessages.connection_status("Qdrant", False, {"URL": config.QDRANT_URL})
+            UIMessages.tip("Make sure Qdrant is running")
             return False
 
         # Check OpenAI connection
         if openai_handler and openai_handler.is_available():
             if openai_handler.test_connection():
-                colored_print("✅ OpenAI:               Connected", Colors.OKGREEN)
-                colored_print(
-                    f"   └─ Model:             {config.OPENAI_MODEL}", Colors.OKCYAN
+                UIMessages.connection_status(
+                    "OpenAI", True, {"Model": config.OPENAI_MODEL}
                 )
             else:
-                colored_print("❌ OpenAI:               Connection Failed", Colors.FAIL)
-                colored_print(
-                    f"   └─ Model:             {config.OPENAI_MODEL}", Colors.OKCYAN
+                UIMessages.connection_status(
+                    "OpenAI", False, {"Model": config.OPENAI_MODEL}
                 )
         else:
-            colored_print("⚠️  OpenAI:               Not Configured", Colors.WARNING)
-            colored_print(
-                "   └─ 💡 Set OPENAI_API_KEY for conversational mode", Colors.OKCYAN
-            )
+            UIMessages.warning("OpenAI: Not Configured")
+            UIMessages.tip("Set OPENAI_API_KEY for conversational mode")
 
         # Check MinIO connection
-        if minio_handler:
-            try:
-                minio_handler.ensure_bucket_exists()
-                colored_print("✅ MinIO:                Connected", Colors.OKGREEN)
-                colored_print(
-                    f"   └─ Endpoint:          {config.MINIO_ENDPOINT}", Colors.OKCYAN
-                )
-                colored_print(
-                    f"   └─ Bucket:            {config.MINIO_BUCKET}", Colors.OKCYAN
-                )
-            except Exception as e:
-                colored_print("❌ MinIO:                Connection Failed", Colors.FAIL)
-                colored_print(
-                    f"   └─ Endpoint:          {config.MINIO_ENDPOINT}", Colors.OKCYAN
-                )
-                colored_print(f"   └─ Error:             {e}", Colors.OKCYAN)
-        else:
-            colored_print("⚠️  MinIO:                Not Configured", Colors.WARNING)
-            colored_print("   └─ 💡 Image storage will be disabled", Colors.OKCYAN)
+        try:
+            minio_handler.ensure_bucket_exists()
+            UIMessages.connection_status(
+                "MinIO",
+                True,
+                {"Endpoint": config.MINIO_ENDPOINT, "Bucket": config.MINIO_BUCKET},
+            )
+        except Exception as e:
+            UIMessages.connection_status(
+                "MinIO", False, {"Endpoint": config.MINIO_ENDPOINT, "Error": str(e)}
+            )
 
         # ================================================================
         # COLLECTION STATUS
         # ================================================================
-        colored_print("\n🗄️  Collection Status", Colors.HEADER)
-        colored_print("=" * 60, Colors.HEADER)
+        StatusDisplay.show_collection_status_header()
 
         # Get collection info
         try:
             collection_info = vector_db.client.get_collection(config.COLLECTION_NAME)
             collection_exists = True
-            colored_print("✅ Collection:           Ready", Colors.OKGREEN)
-            colored_print(
-                f"   ├─ Name:              {config.COLLECTION_NAME}", Colors.OKCYAN
-            )
-            colored_print(
-                f"   ├─ Documents:         {collection_info.points_count:,}",
-                Colors.OKCYAN,
-            )
-            colored_print(
-                f"   ├─ Vector Size:       {config.VECTOR_SIZE}", Colors.OKCYAN
-            )
-            colored_print(
-                f"   └─ Distance Metric:   {config.DISTANCE_METRIC}", Colors.OKCYAN
-            )
+            UIMessages.success("Collection: Ready")
+            UIMessages.status_item("Name", config.COLLECTION_NAME)
+            UIMessages.status_item("Documents", f"{collection_info.points_count:,}")
+            UIMessages.status_item("Vector Size", str(config.VECTOR_SIZE))
+            UIMessages.status_item_last("Distance Metric", config.DISTANCE_METRIC)
         except Exception:
             collection_exists = False
-            colored_print("❌ Collection:           Not Found", Colors.WARNING)
-            colored_print(
-                f"   ├─ Name:              {config.COLLECTION_NAME}", Colors.OKCYAN
-            )
-            colored_print("   ├─ Documents:         N/A", Colors.OKCYAN)
-            colored_print(
-                f"   ├─ Vector Size:       {config.VECTOR_SIZE}", Colors.OKCYAN
-            )
-            colored_print(
-                f"   └─ Distance Metric:   {config.DISTANCE_METRIC}", Colors.OKCYAN
-            )
+            UIMessages.warning("Collection: Not Found")
+            UIMessages.status_item("Name", config.COLLECTION_NAME)
+            UIMessages.status_item("Documents", "N/A")
+            UIMessages.status_item("Vector Size", str(config.VECTOR_SIZE))
+            UIMessages.status_item_last("Distance Metric", config.DISTANCE_METRIC)
 
         # ================================================================
         # BACKGROUND PROCESSING STATUS
         # ================================================================
         if pipeline:
-            colored_print("\n📤 Image Processing Status", Colors.HEADER)
-            colored_print("=" * 60, Colors.HEADER)
+            StatusDisplay.show_processing_status_header()
 
             upload_status = pipeline.get_upload_status()
             if upload_status["total"] > 0:
-                colored_print(
-                    f"├─ Total Tasks:          {upload_status['total']}", Colors.OKCYAN
-                )
-                colored_print(
-                    f"├─ Completed:            {upload_status['completed']}",
-                    Colors.OKGREEN,
-                )
-                colored_print(
-                    f"├─ Failed:               {upload_status['failed']}",
-                    Colors.FAIL if upload_status["failed"] > 0 else Colors.OKCYAN,
-                )
-                colored_print(
-                    f"├─ Pending:              {upload_status['pending']}",
-                    Colors.WARNING if upload_status["pending"] > 0 else Colors.OKCYAN,
-                )
-                colored_print(
-                    f"└─ Queue Size:           {upload_status['queue_size']}",
-                    Colors.OKCYAN,
+                UIMessages.status_item("Total Tasks", str(upload_status["total"]))
+                UIMessages.status_item("Completed", str(upload_status["completed"]))
+
+                UIMessages.status_item("Failed", str(upload_status["failed"]))
+
+                UIMessages.status_item("Pending", str(upload_status["pending"]))
+
+                UIMessages.status_item_last(
+                    "Queue Size", str(upload_status["queue_size"])
                 )
 
                 if upload_status["pending"] > 0:
-                    colored_print(
-                        "   💡 Background image processing is still running",
-                        Colors.OKCYAN,
-                    )
+                    UIMessages.tip("Background image processing is still running")
             else:
-                colored_print("└─ No processing tasks in queue", Colors.OKCYAN)
+                UIMessages.status_item_last(
+                    "Processing Status", "No processing tasks in queue"
+                )
 
         # ================================================================
         # MODEL CONFIGURATION
         # ================================================================
-        colored_print("\n🤖 Model Configuration", Colors.HEADER)
-        colored_print("=" * 60, Colors.HEADER)
-        colored_print(f"├─ ColPali Model:        {config.MODEL_NAME}", Colors.OKCYAN)
-        colored_print(f"├─ OpenAI Model:         {config.OPENAI_MODEL}", Colors.OKCYAN)
-        colored_print(f"├─ Search Limit:         {config.SEARCH_LIMIT}", Colors.OKCYAN)
-        colored_print("└─ Background Processing: Enabled", Colors.OKGREEN)
+        StatusDisplay.show_model_config_header()
+        UIMessages.status_item("ColPali Model", config.MODEL_NAME)
+        UIMessages.status_item("OpenAI Model", config.OPENAI_MODEL)
+        UIMessages.status_item("Search Limit", str(config.SEARCH_LIMIT))
+        UIMessages.status_item_last("Background Processing", "Enabled")
 
         # ================================================================
         # SYSTEM SUMMARY
         # ================================================================
-        colored_print("\n📋 System Summary", Colors.HEADER)
-        colored_print("=" * 60, Colors.HEADER)
+        StatusDisplay.show_system_summary_header()
 
         if collection_exists and collection_info.points_count > 0:
-            colored_print("✅ Status:               Ready for searches", Colors.OKGREEN)
-            colored_print("💡 Next Steps:", Colors.OKCYAN)
-            colored_print("   └─ Use 'ask <query>' to search documents", Colors.OKCYAN)
-            colored_print(
-                "   └─ Use 'set-mode conversational' for AI responses", Colors.OKCYAN
-            )
+            UIMessages.success("Status: Ready for searches")
+            InteractiveHelp.show_next_steps(True)
         elif collection_exists and collection_info.points_count == 0:
-            colored_print("⚠️  Status:               Collection empty", Colors.WARNING)
-            colored_print("💡 Next Steps:", Colors.OKCYAN)
-            colored_print("   └─ Use 'upload <file>' to add documents", Colors.OKCYAN)
+            UIMessages.warning("Status: Collection empty")
+            InteractiveHelp.show_next_steps(False)
         else:
-            colored_print("⚠️  Status:               Setup incomplete", Colors.WARNING)
-            colored_print("💡 Next Steps:", Colors.OKCYAN)
-            colored_print(
-                "   └─ Use 'upload <file>' to create collection and add documents",
-                Colors.OKCYAN,
-            )
+            UIMessages.warning("Status: Setup incomplete")
+            UIMessages.tip("Use 'upload <file>' to create collection and add documents")
 
         return True
 
     except Exception as e:
-        colored_print(f"❌ Error getting status: {e}", Colors.FAIL)
-        colored_print("💡 Make sure Qdrant is running and accessible", Colors.OKCYAN)
-        return False
+        return ErrorHandler.handle_error(e, "Status check")

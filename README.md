@@ -16,12 +16,20 @@ A monorepo containing various utility scripts, tools, and applications for devel
 A powerful multimodal document retrieval system that combines ColPali embeddings with vector search for intelligent document analysis.
 
 **What it does:**
-- 🔍 Search PDF documents and images using natural language queries
-- 💬 Get AI-powered conversational responses about document content
-- 📊 Handle complex visual documents with charts, diagrams, and mixed content
-- ⚡ Scale efficiently with optimized vector storage and retrieval
+- 🔍 **Conversational Search**: Just ask questions in natural language - no commands needed
+- 💬 **AI-Powered Responses**: Get intelligent, contextual answers about your documents
+- 📄 **PDF & Image Support**: Process complex visual documents with charts, diagrams, and mixed content
+- ⚡ **Optimized Performance**: 13x faster search with binary quantization and reranking optimization
+- 🤖 **Streamlined Interface**: Simple conversational CLI that starts ready to use
 
-**Key highlights:** 13x faster search performance, binary quantization, Docker deployment, interactive CLI
+**Key technical features:**
+- Binary quantization for 90%+ storage reduction
+- Mean pooling reranking optimization (enabled by default)
+- Background image processing pipeline
+- Docker deployment with Qdrant + MinIO
+- Graceful handling of optional services (OpenAI, MinIO)
+
+**Usage:** Simply run `python main.py` and start asking questions about your documents!
 
 [📖 View Full Documentation](./colnomic_qdrant_rag/README.md)
 

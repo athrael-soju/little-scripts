@@ -106,8 +106,7 @@ class RetrievalPipeline:
         """Set up the model and vector database."""
         self.model_handler.setup()
         self.vector_db.create_collection()
-        if self.minio_handler:
-            self.minio_handler.ensure_bucket_exists()
+        self.minio_handler.ensure_bucket_exists()
 
     def _background_upload_worker(self):
         """Background worker to handle image processing and MinIO uploads."""
