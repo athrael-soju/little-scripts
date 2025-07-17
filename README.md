@@ -30,7 +30,7 @@ An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni 
 - Batch processing for efficient large audio handling
 - Real-time audio processing pipeline
 
-**Usage:** Run `python run_ui.py` and follow the intuitive web interface to process videos and ask questions!
+**Usage:** Run `python main.py` and follow the intuitive web interface to process videos and ask questions!
 
 [📖 View Full Documentation](./colqwen_omni/README.md)
 
