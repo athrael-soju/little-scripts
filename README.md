@@ -16,7 +16,7 @@ A monorepo containing various utility scripts, tools, and applications for devel
 An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities for intelligent audio content analysis.
 
 **What it does:**
-- 🎵 **YouTube Audio Processing**: Download and extract audio from YouTube videos automatically
+- 🎵 **Audio Processing**: Process video URLs and extract audio from Video content automatically
 - 🧠 **Advanced Audio Understanding**: Uses ColQwen2.5-Omni model for creating semantic audio embeddings
 - 💬 **Intelligent Q&A**: Ask questions about audio content and get contextual answers
 - 🔊 **Audio Responses**: Receive answers in both text and audio format using OpenAI's audio API
@@ -331,8 +331,6 @@ Open source - feel free to use and modify as needed.
 - **transformers**
 - **utilities**
 - **vector-database**
-- **youtube-processing**
-
 ---
 
 <div align="center">

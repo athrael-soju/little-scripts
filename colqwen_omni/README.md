@@ -5,11 +5,11 @@
 
 ## About
 
-An Audio Retrieval-Augmented Generation (RAG) app that combines the power of ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities. This system can process YouTube videos, extract and analyze audio content, and answer questions about the audio using both text and audio responses.
+An Audio Retrieval-Augmented Generation (RAG) app that combines the power of ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities. This system can process Videos, extract and analyze audio content, and answer questions about the audio using both text and audio responses.
 
 ## ✨ Key Features
 
-- 🎵 **YouTube Audio Processing**: Download and extract audio from YouTube videos automatically
+- 🎵 **Audio Processing**: Download and extract audio from videos automatically
 - 🧠 **Advanced Audio Understanding**: Uses ColQwen2.5-Omni model for creating semantic audio embeddings
 - 💬 **Intelligent Q&A**: Ask questions about audio content and get contextual answers
 - 🔊 **Audio Responses**: Receive answers in both text and audio format using OpenAI's audio API
@@ -85,7 +85,7 @@ brew install poppler ffmpeg
 3. **Follow the interface tabs:**
 
    - **Setup**: Initialize system and load model
-   - **Process Video**: Add YouTube URLs and process audio
+   - **Process Video**: Add video URLs and process audio
    - **Ask Questions**: Query the processed audio content
    - **Help**: View detailed usage instructions
 
@@ -100,9 +100,9 @@ rag = AudioRAG(api_key="your-openai-api-key", api_model="gpt-4o-mini-audio-previ
 # Load model
 rag.load_model()
 
-# Process YouTube video
-youtube_url = "https://www.youtube.com/watch?v=example"
-audio_path = rag.download_youtube_audio(youtube_url)
+# Process Video
+video_url = "https://www.youtube.com/watch?v=example"
+audio_path = rag.extract_audio(video_url)
 audio_chunks = rag.chunk_audio(audio_path, chunk_length_seconds=30)
 rag.create_embeddings(audio_chunks)
 
@@ -129,7 +129,7 @@ rag.save_audio_response(response, "answer.wav")
 
 <img src="img/2.process.png" alt="Process Interface" width="500">
 
-1. Paste a YouTube video URL
+1. Paste a video URL
 2. Adjust chunk length (10-120 seconds, default: 30)
 3. Click "Process Video"
 4. Wait for processing to complete
@@ -192,7 +192,7 @@ colqwen_omni/
 
 ### Audio Processing Pipeline
 
-1. **Download**: YouTube video downloaded using `yt-dlp`
+1. **Process**: Video processed using `yt-dlp`
 2. **Extraction**: Audio extracted and converted to WAV format
 3. **Chunking**: Audio split into configurable segments
 4. **Embedding**: ColQwen2.5-Omni generates semantic embeddings
@@ -231,10 +231,10 @@ colqwen_omni/
 export CUDA_VISIBLE_DEVICES=""  # Force CPU usage
 ```
 
-**2. YouTube Download Failures**
+**2. Video Processing Failures**
 
 ```bash
-# Error: Unable to download video
+# Error: Unable to process video
 # Solution: Check video availability and network connection
 # Try different video URLs or check yt-dlp installation
 ```
@@ -281,7 +281,7 @@ export OPENAI_API_KEY="your-correct-api-key"
 
 ### Utilities
 
-- `yt-dlp`: YouTube video downloading
+- `yt-dlp`: Video processing
 - `numpy`: Numerical computing
 - `tqdm`: Progress bars
 - `requests`: HTTP requests
@@ -331,7 +331,7 @@ This project was inspired by and built upon the following resources:
 - [ColPali Team](https://github.com/illuin-tech/colpali) for the ColQwen2.5-Omni model
 - [OpenAI](https://openai.com/) for the GPT-4 audio API
 - [Gradio](https://gradio.app/) for the web interface framework
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube video downloading
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for video Procesing
 
 ## 📞 Support
 

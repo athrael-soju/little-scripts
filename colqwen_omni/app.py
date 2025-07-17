@@ -3,7 +3,7 @@
 Audio RAG with ColQwen2_5Omni Model
 
 This script demonstrates how to:
-1. Download YouTube videos and extract audio
+1. Process videos and extract audio
 2. Process audio into chunks
 3. Create embeddings using ColQwen2_5Omni
 4. Query the audio corpus and get answers using OpenAI's API
@@ -82,11 +82,11 @@ class AudioRAG:
         )
         print("Model loaded successfully!")
 
-    def download_youtube_audio(self, url: str, output_path: str = "audio.wav"):
-        """Download YouTube video and extract audio
+    def extract_audio(self, url: str, output_path: str = "audio.wav"):
+        """Process video and extract audio
 
         Args:
-            url: YouTube video URL
+            url: Video URL
             output_path: Path to save the audio file
         """
         cmd = [
@@ -348,8 +348,8 @@ def main():
     rag.load_model()
 
     # Download and process audio
-    youtube_url = "https://www.youtube.com/watch?v=lsbcN9-jU1Y"
-    audio_path = rag.download_youtube_audio(youtube_url)
+    video_url = "https://www.youtube.com/watch?v=lsbcN9-jU1Y"
+    audio_path = rag.extract_audio(video_url)
 
     if audio_path:
         # Process audio

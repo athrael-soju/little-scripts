@@ -3,7 +3,7 @@
 Gradio UI for Audio RAG with ColQwen2_5Omni Model
 
 This provides an intuitive web interface for:
-1. Adding YouTube video links and processing them
+1. Adding Video links and processing them
 2. Asking questions about the audio content
 3. Getting text and audio responses
 """
@@ -54,21 +54,21 @@ class AudioRAGUI:
             return f"❌ Error loading model: {str(e)}"
 
     def process_video(self, video_url: str, chunk_length: int) -> str:
-        """Process a YouTube video URL"""
+        """Process a video URL"""
         if not self.is_model_loaded:
             return "❌ Please load the model first"
 
         if not video_url:
-            return "❌ Please provide a YouTube video URL"
+            return "❌ Please provide a video URL"
 
         try:
             # Download audio
-            status = "📥 Downloading audio from YouTube..."
+            status = "📥 Downloading audio from video..."
             yield status
 
-            audio_path = self.rag_system.download_youtube_audio(video_url)
+            audio_path = self.rag_system.extract_audio(video_url)
             if not audio_path:
-                yield "❌ Failed to download audio from YouTube"
+                yield "❌ Failed to download audio from video"
                 return
 
             # Process audio into chunks
@@ -143,7 +143,7 @@ def create_interface():
         gr.HTML("""
         <div style="text-align: center; padding: 20px;">
             <h1>🎵 Audio RAG with ColQwen2.5-Omni</h1>
-            <p>Process YouTube videos and ask questions about their audio content</p>
+            <p>Process videos and ask questions about their audio content</p>
         </div>
         """)
 
@@ -172,11 +172,11 @@ def create_interface():
             model_status = gr.Textbox(label="Model Status", interactive=False)
 
         with gr.Tab("🎥 Process Video"):
-            gr.Markdown("### Add and Process YouTube Video")
+            gr.Markdown("### Add and Process video")
 
             with gr.Row():
                 video_url = gr.Textbox(
-                    label="YouTube Video URL",
+                    label="Video URL",
                     placeholder="https://www.youtube.com/watch?v=...",
                     scale=3,
                 )
@@ -236,7 +236,7 @@ def create_interface():
             - Click "Load ColQwen2.5-Omni Model" (this may take a few minutes)
             
             ### 2. Process Video
-            - Paste a YouTube video URL
+            - Paste a video URL
             - Adjust chunk length if needed (30 seconds is usually good)
             - Click "Process Video" and wait for completion
             
@@ -252,7 +252,6 @@ def create_interface():
             - The audio response will be played automatically
             
             ### Supported Video Sources
-            - YouTube videos
             - Most video formats supported by yt-dlp
             """)
 

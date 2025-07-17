@@ -21,10 +21,10 @@ fsspec==2023.9.2
 # OpenAI API
 openai
 
-# ColPali model (from GitHub)
+# ColPali model
 git+https://github.com/illuin-tech/colpali
 
-# YouTube downloader (from GitHub)
+# yt-dlp
 git+https://github.com/yt-dlp/yt-dlp
 
 # Additional dependencies that might be needed
