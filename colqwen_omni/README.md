@@ -1,222 +1,349 @@
-# Audio RAG with ColQwen2_5Omni
+# ColQwen2.5-Omni Audio RAG System
 
-A Retrieval-Augmented Generation (RAG) system for audio content using ColQwen2_5Omni model and OpenAI's GPT-4 Audio API.
+> **⚠️ RESEARCH PURPOSES ONLY**  
+> This application is intended for research and educational purposes only. It is not designed for commercial use or production environments.
 
-## Overview
+## About
 
-This project demonstrates how to build an Audio RAG system that can:
-- Download audio from YouTube videos
-- Process audio into searchable chunks
-- Create embeddings using ColQwen2_5Omni multimodal model
-- Query audio content using natural language
-- Generate answers using OpenAI's GPT-4 with audio understanding
+An Audio Retrieval-Augmented Generation (RAG) app that combines the power of ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities. This system can process YouTube videos, extract and analyze audio content, and answer questions about the audio using both text and audio responses.
 
-## Features
+## ✨ Key Features
 
-- **🖥️ Web Interface**: Intuitive Gradio UI for easy interaction
-- **🎵 Audio Processing**: Download YouTube videos and convert to audio
-- **📝 Text Queries**: Search audio content using natural language queries
-- **🤖 AI-Powered Answers**: Get responses from GPT-4 with audio understanding
-- **🔊 Audio Responses**: Receive answers as both text and audio
-- **⚡ Efficient Search**: Fast semantic search through audio embeddings
-- **📊 Batch Processing**: Process multiple audio chunks efficiently
+- 🎵 **YouTube Audio Processing**: Download and extract audio from YouTube videos automatically
+- 🧠 **Advanced Audio Understanding**: Uses ColQwen2.5-Omni model for creating semantic audio embeddings
+- 💬 **Intelligent Q&A**: Ask questions about audio content and get contextual answers
+- 🔊 **Audio Responses**: Receive answers in both text and audio format using OpenAI's audio API
+- 📊 **Chunk-based Processing**: Configurable audio chunking for optimal processing and retrieval
+- 🌐 **Beautiful Web Interface**: Intuitive Gradio-based UI with multiple tabs for different functions
+- ⚡ **GPU Acceleration**: Supports CUDA for faster model inference
+- 🔧 **Easy Setup**: Simple launcher script and comprehensive error handling
 
-## Quick Start
+## 🛠️ Prerequisites
 
-1. **Install system dependencies**:
+### System Dependencies
+
+**Ubuntu/Debian:**
+
+```bash
+sudo apt-get update
+sudo apt-get install poppler-utils ffmpeg
+```
+
+**macOS:**
+
+```bash
+brew install poppler ffmpeg
+```
+
+**Windows:**
+
+- Download and install [FFmpeg](https://ffmpeg.org/download.html)
+- Download and install [Poppler](https://poppler.freedesktop.org/)
+
+### Python Requirements
+
+- Python 3.8+
+- CUDA-compatible GPU (recommended for faster processing)
+- OpenAI API key with audio model access
+
+## 📦 Installation
+
+1. **Clone the repository:**
+
    ```bash
-   # Ubuntu/Debian
-   sudo apt-get install poppler-utils ffmpeg
-   
-   # macOS
-   brew install poppler ffmpeg
+   git clone https://github.com/athrael-soju/little-scripts.git
+   cd little-scripts/colqwen_omni
    ```
+2. **Create a virtual environment:**
 
-2. **Install Python dependencies**:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
+3. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
+4. **Set up environment variables:**
 
-3. **Set up environment**:
    ```bash
-   export OPENAI_API_KEY="your-api-key-here"
-   export OPENAI_MODEL="gpt-4o-audio-preview"  # Optional
+   export OPENAI_API_KEY="your-openai-api-key-here"
+   export OPENAI_MODEL="gpt-4o-mini-audio-preview"  # Optional, defaults to this model
    ```
 
-4. **Run the system**:
-   
-   **Option A: Web Interface (Recommended)**
+## 🚀 Quick Start
+
+### Option 1: Web Interface (Recommended)
+
+1. **Launch the UI:**
+
    ```bash
    python run_ui.py
    ```
-   This will open a web interface at `http://localhost:7860` where you can:
-   - Set up your API keys
-   - Process YouTube videos
-   - Ask questions and get audio responses
-   
-   **Option B: Command Line**
-   ```bash
-   python app.py
-   ```
+2. **Open your browser** to `http://localhost:7860`
+3. **Follow the interface tabs:**
 
-## Web Interface (Gradio UI)
+   - **Setup**: Initialize system and load model
+   - **Process Video**: Add YouTube URLs and process audio
+   - **Ask Questions**: Query the processed audio content
+   - **Help**: View detailed usage instructions
 
-The easiest way to use this system is through the web interface:
-
-### Starting the UI
-
-```bash
-python run_ui.py
-```
-
-The interface will open automatically in your browser at `http://localhost:7860`.
-
-### Using the Interface
-
-#### 1. Setup Tab
-- **Initialize System**: Enter your OpenAI API key and model name
-- **Load Model**: Download and load the ColQwen2.5-Omni model (takes a few minutes)
-
-#### 2. Process Video Tab
-- **Add YouTube URL**: Paste any YouTube video link
-- **Adjust Settings**: Set chunk length (30 seconds recommended)
-- **Process**: Click to download and process the video
-
-#### 3. Ask Questions Tab
-- **Enter Questions**: Type your question about the video content
-- **Get Answers**: Receive both text and audio responses
-- **Adjust Context**: Control how many audio chunks to use
-
-### UI Features
-
-- **📊 Real-time Status**: See processing progress and system status
-- **🎵 Audio Playback**: Play audio responses directly in the browser
-- **⚙️ Configurable Settings**: Adjust chunk length and search parameters
-- **📝 Help Section**: Built-in documentation and tips
-- **🔄 Batch Processing**: Process multiple videos without reloading the model
-
-## Command Line Usage
-
-### Basic Example
+### Option 2: Command Line Usage
 
 ```python
 from app import AudioRAG
 
-# Initialize the system
-rag = AudioRAG(api_key="your-openai-api-key")
+# Initialize system
+rag = AudioRAG(api_key="your-openai-api-key", api_model="gpt-4o-mini-audio-preview")
+
+# Load model
 rag.load_model()
 
-# Process audio from YouTube
-audio_path = rag.download_youtube_audio("https://www.youtube.com/watch?v=VIDEO_ID")
-audio_chunks = rag.chunk_audio(audio_path)
+# Process YouTube video
+youtube_url = "https://www.youtube.com/watch?v=example"
+audio_path = rag.download_youtube_audio(youtube_url)
+audio_chunks = rag.chunk_audio(audio_path, chunk_length_seconds=30)
 rag.create_embeddings(audio_chunks)
 
-# Query the system
-response = rag.answer_query("What was discussed about artificial intelligence?")
+# Ask questions
+response = rag.answer_query("What is the main topic discussed?", k=5)
 print(f"Answer: {response['answer_text']}")
 
 # Save audio response
 rag.save_audio_response(response, "answer.wav")
 ```
 
-### Advanced Usage
+## 🎯 Usage Guide
 
-```python
-# Process local video file
-audio_path = rag.convert_video_to_audio("my_video.mp4")
+### Step 1: Setup
 
-# Custom chunk size (default is 30 seconds)
-audio_chunks = rag.chunk_audio(audio_path, chunk_length_seconds=60)
+<img src="img/1.setup.png" alt="Setup Interface" width="500">
 
-# Custom batch size for embedding creation
-rag.create_embeddings(audio_chunks, batch_size=2)
+1. Enter your OpenAI API key
+2. Select the OpenAI model (defaults to `gpt-4o-mini-audio-preview`)
+3. Click "Initialize System"
+4. Click "Load ColQwen2.5-Omni Model" (may take a few minutes)
 
-# Get more results
-top_chunks = rag.query_audio("machine learning", k=10)
-```
+### Step 2: Process Video
 
-## Project Structure
+<img src="img/2.process.png" alt="Process Interface" width="500">
+
+1. Paste a YouTube video URL
+2. Adjust chunk length (10-120 seconds, default: 30)
+3. Click "Process Video"
+4. Wait for processing to complete
+
+### Step 3: Ask Questions
+
+<img src="img/3.ask-questions.png" alt="Questions Interface" width="500">
+
+1. Enter your question about the video content
+2. Adjust the number of audio chunks to use (1-10, default: 5)
+3. Click "Ask Question"
+4. Review both text and audio responses
+
+### Step 4: Help & Tips
+
+<img src="img/4.help.png" alt="Help Interface" width="500">
+
+- The system works best with videos containing clear speech
+- Longer videos take more time to process
+- More audio chunks provide better context but slower responses
+- You can process multiple videos by repeating Step 2
+
+## 🔧 Configuration
+
+### Audio Processing Parameters
+
+- **Chunk Length**: 10-120 seconds (default: 30)
+
+  - Shorter chunks: Better granularity, more processing time
+  - Longer chunks: Faster processing, potentially less precise retrieval
+- **Number of Chunks for Query**: 1-10 (default: 5)
+
+  - More chunks: Better context, slower response
+  - Fewer chunks: Faster response, potentially less comprehensive
+
+### Model Configuration
+
+The system uses two main models:
+
+- **ColQwen2.5-Omni**: For audio embedding generation
+- **OpenAI GPT-4 Audio**: For question answering and audio response generation
+
+## 📁 Project Structure
 
 ```
 colqwen_omni/
-├── app.py               # Main AudioRAG class
-├── main.py              # Gradio web interface
-├── run_ui.py            # UI launcher script
-├── requirements.txt     # Python dependencies
-├── setup.md             # Detailed setup instructions
-├── README.md            # This file
-└── Practical_3_AudioRAG.ipynb  # Original Jupyter notebook
+├── app.py              # Core AudioRAG class with processing logic
+├── main.py             # Gradio UI wrapper and interface creation
+├── run_ui.py           # Simple launcher script
+├── requirements.txt    # Python dependencies
+├── img/               # UI screenshots and documentation images
+│   ├── 1.setup.png
+│   ├── 2.process.png
+│   ├── 3.ask-questions.png
+│   └── 4.help.png
+└── README.md          # This documentation
 ```
 
-## Requirements
+## 🔍 Technical Details
 
-### System Requirements
-- Python 3.8+
-- FFmpeg (for audio processing)
-- Poppler (for PDF processing, if needed)
-- CUDA-compatible GPU (recommended) or CPU
+### Audio Processing Pipeline
 
-### Python Dependencies
-See `requirements.txt` for the complete list. Key dependencies include:
-- torch
-- transformers
-- openai
-- colpali-engine
-- moviepy
-- pydub
-- yt-dlp
-- gradio (for web interface)
+1. **Download**: YouTube video downloaded using `yt-dlp`
+2. **Extraction**: Audio extracted and converted to WAV format
+3. **Chunking**: Audio split into configurable segments
+4. **Embedding**: ColQwen2.5-Omni generates semantic embeddings
+5. **Query**: User questions matched against embeddings
+6. **Response**: OpenAI GPT-4 generates text and audio answers
 
-## How It Works
+### Model Architecture
 
-1. **Audio Acquisition**: Downloads YouTube videos or processes local files
-2. **Audio Processing**: Splits audio into 30-second chunks and resamples to 16kHz
-3. **Embedding Generation**: Uses ColQwen2_5Omni to create embeddings for each chunk
-4. **Query Processing**: Converts text queries to embeddings and finds similar audio chunks
-5. **Answer Generation**: Sends relevant audio chunks to GPT-4 for question answering
-6. **Response**: Returns both text and audio responses
+- **ColQwen2.5-Omni**: Multimodal model for audio understanding
 
-## Performance Tips
+  - Supports audio input processing
+  - Generates semantic embeddings
+  - GPU acceleration with Flash Attention 2
+- **OpenAI GPT-4 Audio**: Audio-enabled language model
 
-- Use GPU for faster model inference
-- Adjust chunk size based on your content (30s default)
-- Process audio in batches to optimize memory usage
-- Cache embeddings for repeated queries
+  - Processes audio chunks directly
+  - Generates contextual text responses
+  - Produces natural speech audio responses
 
-## Troubleshooting
+### Performance Optimizations
+
+- **Batch Processing**: Audio chunks processed in configurable batches
+- **GPU Acceleration**: CUDA support for faster inference
+- **Memory Management**: Efficient handling of large audio files
+- **Caching**: Embeddings stored in memory for quick retrieval
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **CUDA Out of Memory**: Reduce batch size in `create_embeddings()`
-2. **FFmpeg Not Found**: Ensure FFmpeg is installed and in PATH
-3. **Model Loading Issues**: Check GPU memory or use CPU mode
-4. **YouTube Download Fails**: Update yt-dlp: `pip install --upgrade yt-dlp`
+**1. Model Loading Errors**
 
-### GPU Requirements
+```bash
+# Error: CUDA out of memory
+# Solution: Reduce batch size or use CPU
+export CUDA_VISIBLE_DEVICES=""  # Force CPU usage
+```
 
-- ColQwen2_5Omni requires significant GPU memory
-- CPU mode available but slower
-- Flash attention recommended for faster inference
+**2. YouTube Download Failures**
 
-## Contributing
+```bash
+# Error: Unable to download video
+# Solution: Check video availability and network connection
+# Try different video URLs or check yt-dlp installation
+```
+
+**3. Audio Processing Issues**
+
+```bash
+# Error: Audio conversion failed
+# Solution: Install FFmpeg properly
+# Check audio file format and size
+```
+
+**4. API Key Issues**
+
+```bash
+# Error: OpenAI API authentication failed
+# Solution: Verify API key and model access
+export OPENAI_API_KEY="your-correct-api-key"
+```
+
+### Performance Tips
+
+- **GPU Usage**: Use CUDA-compatible GPU for faster processing
+- **Chunk Length**: Optimize chunk length based on content type
+- **Batch Size**: Adjust batch size based on available memory
+- **Model Selection**: Choose appropriate OpenAI model for your use case
+
+## 📊 Dependencies
+
+### Core Libraries
+
+- `torch`: Deep learning framework
+- `transformers`: Model loading and processing
+- `colpali-engine`: ColQwen2.5-Omni model support
+- `openai`: OpenAI API client
+- `gradio`: Web interface framework
+
+### Audio Processing
+
+- `moviepy`: Video and audio processing
+- `pydub`: Audio manipulation
+- `librosa`: Audio analysis
+- `scipy`: Scientific computing
+
+### Utilities
+
+- `yt-dlp`: YouTube video downloading
+- `numpy`: Numerical computing
+- `tqdm`: Progress bars
+- `requests`: HTTP requests
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## License
+### Development Setup
 
-This project is part of the little-scripts collection. See the main repository for license information.
+```bash
+# Clone repository
+git clone https://github.com/athrael-soju/little-scripts.git
+cd little-scripts/colqwen_omni
 
-## Acknowledgments
+# Create development environment
+python -m venv .venv
+source .venv/bin/activate
 
-- [ColPali](https://github.com/illuin-tech/colpali) for the multimodal model
-- [OpenAI](https://openai.com) for GPT-4 Audio API
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube downloading
+# Install dependencies
+pip install -r requirements.txt
 
-## Support
+# Run tests (if available)
+python -m pytest tests/
+```
 
-For detailed setup instructions, see `setup.md`.
-For issues and questions, please open an issue in the main repository. 
+## 📄 License
+
+This project is part of the little-scripts monorepo and is open source. Feel free to use and modify as needed.
+
+## 📚 References & Inspiration
+
+This project was inspired by and built upon the following resources:
+
+- **[ColQwen-Omni: Retrieve in every modality](https://huggingface.co/blog/manu/colqwen-omni-omnimodal-retrieval)** - Official Hugging Face blog post introducing the ColQwen-Omni model and its multimodal retrieval capabilities
+- **[ColQwen-Omni Interactive Notebook](https://colab.research.google.com/drive/1YOlTWfLbiyQqfq1SlqHA2iME1R-nH4aS#scrollTo=qpsLCLWzTAnZ)** - Google Colab notebook demonstrating audio retrieval with ColQwen-Omni
+- **[ColQwen-Omni Model Card](https://huggingface.co/vidore/colqwen-omni-v0.1)** - Official model documentation and usage examples
+
+## 🙏 Acknowledgments
+
+- [ColPali Team](https://github.com/illuin-tech/colpali) for the ColQwen2.5-Omni model
+- [OpenAI](https://openai.com/) for the GPT-4 audio API
+- [Gradio](https://gradio.app/) for the web interface framework
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) for YouTube video downloading
+
+## 📞 Support
+
+For issues and questions:
+
+1. Check the troubleshooting section above
+2. Search existing issues in the repository
+3. Create a new issue with detailed information
+4. Include error messages, system information, and steps to reproduce
+
+---
+
+<div align="center">
+  <p>⭐ If you find this project useful, please consider giving it a star!</p>
+</div>

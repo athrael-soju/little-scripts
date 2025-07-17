@@ -32,7 +32,7 @@ class AudioRAGUI:
             if not api_key:
                 return "❌ Please provide your OpenAI API key"
             if not api_model:
-                api_model = "gpt-4o-audio-preview"  # Default model
+                api_model = "gpt-4o-mini-audio-preview"  # Default model
 
             self.rag_system = AudioRAG(api_key, api_model)
             return "✅ System initialized successfully"
@@ -158,8 +158,8 @@ def create_interface():
                 )
                 api_model_input = gr.Textbox(
                     label="OpenAI Model",
-                    placeholder="gpt-4o-audio-preview",
-                    value=os.getenv("OPENAI_MODEL", "gpt-4o-audio-preview"),
+                    placeholder="gpt-4o-mini-audio-preview",
+                    value=os.getenv("OPENAI_MODEL", "gpt-4o-mini-audio-preview"),
                 )
 
             init_btn = gr.Button("🚀 Initialize System", variant="primary")

@@ -295,7 +295,7 @@ class AudioRAG:
         completion = self.client.chat.completions.create(
             model=self.openai_model,
             modalities=["text", "audio"],
-            audio={"voice": "ballad", "format": "wav"},
+            audio={"voice": "onyx", "format": "wav"},
             messages=[{"role": "user", "content": content}],
         )
 
