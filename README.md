@@ -11,6 +11,32 @@ A monorepo containing various utility scripts, tools, and applications for devel
 ## 📁 Projects
 
 <details>
+<summary><strong>🎵 ColQwen2.5-Omni Audio RAG System</strong></summary>
+
+An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities for intelligent audio content analysis.
+
+**What it does:**
+- 🎵 **YouTube Audio Processing**: Download and extract audio from YouTube videos automatically
+- 🧠 **Advanced Audio Understanding**: Uses ColQwen2.5-Omni model for creating semantic audio embeddings
+- 💬 **Intelligent Q&A**: Ask questions about audio content and get contextual answers
+- 🔊 **Audio Responses**: Receive answers in both text and audio format using OpenAI's audio API
+- 📊 **Chunk-based Processing**: Configurable audio chunking for optimal processing and retrieval
+- 🌐 **Beautiful Web Interface**: Intuitive Gradio-based UI with multiple tabs for different functions
+
+**Key technical features:**
+- ColQwen2.5-Omni model for audio embedding generation
+- OpenAI GPT-4 audio API for natural language responses
+- GPU acceleration with Flash Attention 2 support
+- Batch processing for efficient large audio handling
+- Real-time audio processing pipeline
+
+**Usage:** Run `python run_ui.py` and follow the intuitive web interface to process videos and ask questions!
+
+[📖 View Full Documentation](./colqwen_omni/README.md)
+
+</details>
+
+<details>
 <summary><strong>🤖 ColPali(ColNomic) + Qdrant + MinIO Retrieval System</strong></summary>
 
 A powerful multimodal document retrieval system that combines ColPali embeddings with vector search for intelligent document analysis.
@@ -85,6 +111,7 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 
 ```
 little-scripts/
+├── colqwen_omni/                  # Audio RAG system with ColQwen2.5-Omni
 ├── colnomic_qdrant_rag/           # Multimodal document retrieval system
 ├── eomt_panoptic_seg/             # Image segmentation web app
 └── [future-projects]/             # Additional projects will be added here
@@ -285,21 +312,26 @@ Open source - feel free to use and modify as needed.
 ## 🏷️ Repository Topics
 
 - **ai-tools**
+- **audio-processing**
 - **automation**
 - **colpali**
+- **colqwen**
 - **computer-vision**
 - **document-retrieval**
 - **gradio**
 - **machine-learning**
 - **multimodal-search**
+- **openai-api**
 - **panoptic-segmentation**
 - **python**
 - **qdrant**
 - **rag-system**
 - **reranking**
+- **speech-to-text**
 - **transformers**
 - **utilities**
 - **vector-database**
+- **youtube-processing**
 
 ---
 

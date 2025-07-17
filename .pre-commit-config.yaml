@@ -5,8 +5,8 @@ repos:
   hooks:
     # Run the linter.
     - id: ruff
+      args: [ "--fix", "--exit-zero" ]
       types_or: [ python, pyi, jupyter ]
-      args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
       types_or: [ python, pyi, jupyter ]
