@@ -1,7 +1,7 @@
 # ColQwen2.5-Omni Audio RAG System
-
-> **⚠️ RESEARCH PURPOSES ONLY**  
-> This application is intended for research and educational purposes only. It is not designed for commercial use or production environments.
+<div align="center">
+  <img src="img/title.png" alt="Setup Interface" width="600">
+</div>
 
 ## About
 
@@ -347,3 +347,7 @@ For issues and questions:
 <div align="center">
   <p>⭐ If you find this project useful, please consider giving it a star!</p>
 </div>
+
+
+> **⚠️ RESEARCH PURPOSES ONLY**  
+> This application is intended for research and educational purposes only. It is not designed for commercial use or production environments.
