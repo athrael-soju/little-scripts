@@ -191,7 +191,7 @@ class AudioRAG:
             dataset=audio_chunks,
             batch_size=batch_size,
             shuffle=False,
-            collate_fn=lambda x: self.processor.process_audios(x),
+            collate_fn=lambda x: self.processor.process_audio(x),
         )
 
         embeddings = []

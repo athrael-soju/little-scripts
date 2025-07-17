@@ -304,7 +304,7 @@ def create_interface():
 def main():
     """Launch the Gradio interface"""
     demo = create_interface()
-    demo.launch(share=True, server_name="0.0.0.0", server_port=7860, show_error=True)
+    demo.launch(share=False, server_name="localhost", server_port=7860, show_error=True)
 
 
 if __name__ == "__main__":
