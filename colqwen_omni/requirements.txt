@@ -1,0 +1,32 @@
+# Core ML and processing libraries
+torch
+transformers
+numpy
+scipy
+pillow
+tqdm
+requests
+
+# Audio/Video processing
+librosa
+moviepy
+pydub
+av
+pdf2image
+
+# Specific version requirements from the notebook
+fsspec==2023.9.2
+# flash-attn==2.7.3
+
+# OpenAI API
+openai
+
+# ColPali model (from GitHub)
+git+https://github.com/illuin-tech/colpali
+
+# YouTube downloader (from GitHub)
+git+https://github.com/yt-dlp/yt-dlp
+
+# Additional dependencies that might be needed
+ipython
+gradio
