@@ -35,7 +35,8 @@ class EmbeddingResponse(BaseModel):
 
 
 class PatchResponse(BaseModel):
-    n_patches: int
+    n_patches_x: int
+    n_patches_y: int
 
 
 class PatchRequest(BaseModel):
@@ -115,9 +116,10 @@ async def get_n_patches(request: PatchRequest):
     try:
         # Pass image size as (width, height) tuple as expected by the processor
         image_size = (request.width, request.height)
-        return processor.get_n_patches(
+        n_patches_x, n_patches_y = processor.get_n_patches(
             image_size, spatial_merge_size=model.spatial_merge_size
         )
+        return {"n_patches_x": n_patches_x, "n_patches_y": n_patches_y}
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error getting number of patches: {str(e)}"
