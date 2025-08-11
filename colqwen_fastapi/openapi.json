@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "ColQwen2 Embedding API",
+    "title": "ColQwen2.5 Embedding API",
     "description": "API for generating embeddings from images and queries",
     "version": "0.1.0"
   },
@@ -59,7 +59,7 @@
     "/patches": {
       "post": {
         "summary": "Get N Patches",
-        "description": "Calculate number of patches for given image size and spatial merge size",
+        "description": "Calculate number of patches for given image size and spatial merge size\n\nArgs:\n    request: PatchRequest containing:\n        - width: int - width of the image in pixels\n        - height: int - height of the image in pixels",
         "operationId": "get_n_patches_patches_post",
         "requestBody": {
           "content": {
@@ -230,27 +230,37 @@
       },
       "PatchRequest": {
         "properties": {
-          "image_size": {
+          "width": {
             "type": "integer",
-            "title": "Image Size"
+            "title": "Width"
+          },
+          "height": {
+            "type": "integer",
+            "title": "Height"
           }
         },
         "type": "object",
         "required": [
-          "image_size"
+          "width",
+          "height"
         ],
         "title": "PatchRequest"
       },
       "PatchResponse": {
         "properties": {
-          "n_patches": {
+          "n_patches_x": {
             "type": "integer",
-            "title": "N Patches"
+            "title": "N Patches X"
+          },
+          "n_patches_y": {
+            "type": "integer",
+            "title": "N Patches Y"
           }
         },
         "type": "object",
         "required": [
-          "n_patches"
+          "n_patches_x",
+          "n_patches_y"
         ],
         "title": "PatchResponse"
       },
