@@ -27,13 +27,10 @@ A FastAPI-based service for generating embeddings from images and text queries u
 
 ```bash
 cd colqwen_fastapi
-pip install -r requirements.txt```bash
+pip install -r requirements.txt
 uvicorn app:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-```
-
-```
 
 [📖 View Full Documentation](./colqwen_fastapi/README.md)
 
@@ -385,3 +382,4 @@ Open source - feel free to use and modify as needed.
 <div align="center">
   <p>⭐ If you find this repository useful, please consider giving it a star!</p>
 </div>
+
