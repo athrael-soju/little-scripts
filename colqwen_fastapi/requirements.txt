@@ -1,0 +1,8 @@
+torch
+torchvision
+transformers
+git+https://github.com/illuin-tech/colpali.git
+fastapi
+uvicorn
+Pillow
+python-multipart

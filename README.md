@@ -11,11 +11,41 @@ A monorepo containing various utility scripts, tools, and applications for devel
 ## 📁 Projects
 
 <details>
+<summary><strong>🚀 ColQwen2.5 FastAPI Service</strong></summary>
+
+A FastAPI-based service for generating embeddings from images and text queries using the ColQwen2.5 model.
+
+**Key Features:**
+
+- 🖼️ Generate embeddings for images and text
+- ⚡ High-performance inference with Flash Attention 2
+- 🏗️ RESTful API for easy integration
+- 📊 Interactive API documentation
+- 🏥 Built-in health monitoring
+
+**Quick Start:**
+
+```bash
+cd colqwen_fastapi
+pip install -r requirements.txt```bash
+uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+```
+
+```
+
+```
+
+[📖 View Full Documentation](./colqwen_fastapi/README.md)
+
+</details>
+
+<details>
 <summary><strong>🎵 ColQwen2.5-Omni Audio RAG System</strong></summary>
 
 An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities for intelligent audio content analysis.
 
 **What it does:**
+
 - 🎵 **Audio Processing**: Process video URLs and extract audio from Video content automatically
 - 🧠 **Advanced Audio Understanding**: Uses ColQwen2.5-Omni model for creating semantic audio embeddings
 - 💬 **Intelligent Q&A**: Ask questions about audio content and get contextual answers
@@ -24,6 +54,7 @@ An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni 
 - 🌐 **Beautiful Web Interface**: Intuitive Gradio-based UI with multiple tabs for different functions
 
 **Key technical features:**
+
 - ColQwen2.5-Omni model for audio embedding generation
 - OpenAI GPT-4 audio API for natural language responses
 - GPU acceleration with Flash Attention 2 support
@@ -42,6 +73,7 @@ An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni 
 A powerful multimodal document retrieval system that combines ColPali embeddings with vector search for intelligent document analysis.
 
 **What it does:**
+
 - 🔍 **Conversational Search**: Just ask questions in natural language - no commands needed
 - 💬 **AI-Powered Responses**: Get intelligent, contextual answers about your documents
 - 📄 **PDF & Image Support**: Process complex visual documents with charts, diagrams, and mixed content
@@ -49,6 +81,7 @@ A powerful multimodal document retrieval system that combines ColPali embeddings
 - 🤖 **Streamlined Interface**: Simple conversational CLI that starts ready to use
 
 **Key technical features:**
+
 - Binary quantization for 90%+ storage reduction
 - Mean pooling reranking optimization (enabled by default)
 - Background image processing pipeline
@@ -67,6 +100,7 @@ A powerful multimodal document retrieval system that combines ColPali embeddings
 An interactive web application for panoptic segmentation using the EOMT (Encoder-only Mask Transformer) model - a minimalist Vision Transformer approach for image segmentation.
 
 **What it does:**
+
 - 🖥️ Interactive web interface for image segmentation
 - 🎨 Multiple visualization types (masks, overlays, contours, analytics)
 - ⚡ Real-time processing with detailed segment statistics
@@ -95,16 +129,16 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 ### Getting Started
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/athrael.soju/little-scripts.git
    cd little-scripts
    ```
-
 2. **Navigate to a specific project:**
+
    ```bash
    cd colnomic_qdrant_rag
    ```
-
 3. **Follow the project-specific README** for detailed setup instructions.
 
 ## 📖 Project Structure
@@ -126,21 +160,23 @@ We welcome contributions to any of the projects in this monorepo!
 Before contributing, please set up pre-commit hooks to ensure code quality:
 
 1. **Install pre-commit:**
+
    ```bash
    pip install pre-commit
    ```
-
 2. **Install the hooks:**
+
    ```bash
    pre-commit install
    ```
-
 3. **Run hooks on all files (optional):**
+
    ```bash
    pre-commit run --all-files
    ```
 
 The pre-commit hooks will automatically run on each commit to check for:
+
 - Code formatting and style
 - Import sorting
 - Trailing whitespace and other common issues
@@ -173,6 +209,7 @@ The pre-commit hooks will automatically run on each commit to check for:
 #### Problem: "pre-commit not found" when committing from Cursor/VS Code
 
 **Symptoms:**
+
 - Commits work fine from terminal but fail from IDE with error: `pre-commit not found. Did you forget to activate your virtualenv?`
 - Pre-commit hooks are installed and work in terminal
 
@@ -183,28 +220,30 @@ The pre-commit hook is trying to use a Python executable path that's not accessi
 Modify the `.git/hooks/pre-commit` file to use the system Python instead of a specific virtualenv path:
 
 1. **Open the pre-commit hook file:**
+
    ```bash
    # Edit .git/hooks/pre-commit
    ```
-
 2. **Find the conditional block (around line 12-21) and replace:**
+
    ```bash
    # Change this:
    if [ -x "$INSTALL_PYTHON" ]; then
        exec "$INSTALL_PYTHON" -mpre_commit "${ARGS[@]}"
-   
+
    # To this:
    if command -v python > /dev/null; then
        exec python -mpre_commit "${ARGS[@]}"
    ```
-
 3. **Test the fix:**
+
    ```bash
    # This should now work from both terminal and IDE
    git commit -m "Test commit"
    ```
 
 **Alternative Solutions:**
+
 - **Option A:** Commit from terminal where virtualenv is activated
 - **Option B:** Skip hooks temporarily: `git commit --no-verify -m "message"`
 - **Option C:** Use IDE's integrated terminal with virtualenv activated
@@ -212,24 +251,27 @@ Modify the `.git/hooks/pre-commit` file to use the system Python instead of a sp
 #### Problem: Ruff formatting conflicts
 
 **Symptoms:**
+
 - Pre-commit hooks fail with ruff formatting errors
 - Code appears correctly formatted but hooks still fail
 
 **Solution:**
+
 1. **Run ruff manually to see specific issues:**
+
    ```bash
    ruff check .
    ruff format .
    ```
-
 2. **Configure ruff settings in `pyproject.toml`** (if needed):
+
    ```toml
    [tool.ruff]
    line-length = 88
    target-version = "py310"
    ```
-
 3. **Run pre-commit on all files to fix batch issues:**
+
    ```bash
    pre-commit run --all-files
    ```
@@ -239,30 +281,33 @@ Modify the `.git/hooks/pre-commit` file to use the system Python instead of a sp
 #### Problem: Docker services not starting
 
 **Symptoms:**
+
 - Services fail to start with port conflicts
 - Docker containers exit immediately
 
 **Common Solutions:**
+
 1. **Check if ports are already in use:**
+
    ```bash
    # Windows
    netstat -ano | findstr :6333
-   
+
    # Linux/macOS
    lsof -i :6333
    ```
-
 2. **Stop conflicting services:**
+
    ```bash
    docker-compose down
    docker system prune -f
    ```
-
 3. **Restart Docker daemon** and try again
 
 #### Problem: Permission issues with Docker volumes
 
 **Solution:**
+
 ```bash
 # Fix volume permissions
 sudo chown -R $USER:$USER ./data
@@ -273,22 +318,25 @@ sudo chown -R $USER:$USER ./data
 #### Problem: Module not found errors
 
 **Symptoms:**
+
 - ImportError or ModuleNotFoundError when running scripts
 - Works in one environment but not another
 
 **Solutions:**
+
 1. **Verify you're in the correct environment:**
+
    ```bash
    which python
    pip list | grep [package-name]
    ```
-
 2. **Reinstall dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
-
 3. **Check Python path conflicts:**
+
    ```bash
    python -c "import sys; print(sys.path)"
    ```
@@ -331,6 +379,7 @@ Open source - feel free to use and modify as needed.
 - **transformers**
 - **utilities**
 - **vector-database**
+
 ---
 
 <div align="center">
