@@ -107,7 +107,7 @@ async def version():
 @app.post("/patches", response_model=PatchResponse)
 async def get_n_patches(request: PatchRequest):
     """Calculate number of patches for given image size and spatial merge size
-    
+
     Args:
         request: PatchRequest containing:
             - width: int - width of the image in pixels
