@@ -59,7 +59,7 @@
     "/patches": {
       "post": {
         "summary": "Get N Patches",
-        "description": "Calculate number of patches for given image size and spatial merge size\n\nArgs:\n    request: PatchRequest containing:\n        - width: int - width of the image in pixels\n        - height: int - height of the image in pixels",
+        "description": "Calculate number of patches for given image dimensions and spatial merge size\n\nArgs:\n    request: PatchRequest containing a list of dimensions with 'width' and 'height' keys",
         "operationId": "get_n_patches_patches_post",
         "requestBody": {
           "content": {
@@ -77,7 +77,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PatchResponse"
+                  "$ref": "#/components/schemas/PatchBatchResponse"
                 }
               }
             }
@@ -251,41 +251,50 @@
         ],
         "title": "ImageEmbeddingItem"
       },
+      "PatchBatchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "PatchBatchResponse"
+      },
       "PatchRequest": {
         "properties": {
-          "width": {
-            "type": "integer",
-            "title": "Width"
-          },
-          "height": {
-            "type": "integer",
-            "title": "Height"
+          "dimensions": {
+            "items": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Dimensions"
           }
         },
         "type": "object",
         "required": [
-          "width",
-          "height"
+          "dimensions"
         ],
         "title": "PatchRequest"
-      },
-      "PatchResponse": {
-        "properties": {
-          "n_patches_x": {
-            "type": "integer",
-            "title": "N Patches X"
-          },
-          "n_patches_y": {
-            "type": "integer",
-            "title": "N Patches Y"
-          }
-        },
-        "type": "object",
-        "required": [
-          "n_patches_x",
-          "n_patches_y"
-        ],
-        "title": "PatchResponse"
       },
       "QueryEmbeddingResponse": {
         "properties": {

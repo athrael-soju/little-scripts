@@ -19,7 +19,11 @@ app = FastAPI(
 model = ColQwen2_5.from_pretrained(
     "vidore/colqwen2.5-v0.2",
     torch_dtype=torch.bfloat16,
-    device_map="cuda:0" if torch.cuda.is_available() else "cpu",
+    device_map=(
+        "cuda:0"
+        if torch.cuda.is_available()
+        else "mps" if torch.backends.mps.is_available() else "cpu"
+    ),
     attn_implementation="flash_attention_2" if is_flash_attn_2_available() else None,
 ).eval()
 
@@ -40,8 +44,11 @@ class PatchResponse(BaseModel):
 
 
 class PatchRequest(BaseModel):
-    width: int
-    height: int
+    dimensions: List[dict[str, int]]
+
+
+class PatchBatchResponse(BaseModel):
+    results: List[dict[str, Union[int, str]]]
 
 
 class ImageEmbeddingItem(BaseModel):
@@ -163,24 +170,41 @@ async def version():
     }
 
 
-@app.post("/patches", response_model=PatchResponse)
+@app.post("/patches", response_model=PatchBatchResponse)
 async def get_n_patches(request: PatchRequest):
-    """Calculate number of patches for given image size and spatial merge size
+    """Calculate number of patches for given image dimensions and spatial merge size
 
     Args:
-        request: PatchRequest containing:
-            - width: int - width of the image in pixels
-            - height: int - height of the image in pixels
+        request: PatchRequest containing a list of dimensions with 'width' and 'height' keys
     """
     try:
-        image_size = (request.width, request.height)
-        n_patches_x, n_patches_y = processor.get_n_patches(
-            image_size, spatial_merge_size=model.spatial_merge_size
-        )
-        return {"n_patches_x": n_patches_x, "n_patches_y": n_patches_y}
+        results = []
+        for dim in request.dimensions:
+            try:
+                image_size = (dim["width"], dim["height"])
+                n_patches_x, n_patches_y = processor.get_n_patches(
+                    image_size, spatial_merge_size=model.spatial_merge_size
+                )
+                results.append(
+                    {
+                        "width": dim["width"],
+                        "height": dim["height"],
+                        "n_patches_x": n_patches_x,
+                        "n_patches_y": n_patches_y,
+                    }
+                )
+            except Exception as e:
+                results.append(
+                    {
+                        "width": dim.get("width"),
+                        "height": dim.get("height"),
+                        "error": str(e),
+                    }
+                )
+        return {"results": results}
     except Exception as e:
         raise HTTPException(
-            status_code=500, detail=f"Error getting number of patches: {str(e)}"
+            status_code=500, detail=f"Error processing patch request: {str(e)}"
         )
 
 
