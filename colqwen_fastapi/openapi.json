@@ -59,7 +59,7 @@
     "/patches": {
       "post": {
         "summary": "Get N Patches",
-        "description": "Calculate number of patches for given image size and spatial merge size\n\nArgs:\n    request: PatchRequest containing:\n        - width: int - width of the image in pixels\n        - height: int - height of the image in pixels",
+        "description": "Calculate number of patches for given image dimensions and spatial merge size\n\nArgs:\n    request: PatchRequest containing a list of dimensions with 'width' and 'height' keys",
         "operationId": "get_n_patches_patches_post",
         "requestBody": {
           "content": {
@@ -77,7 +77,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PatchResponse"
+                  "$ref": "#/components/schemas/PatchBatchResponse"
                 }
               }
             }
@@ -116,7 +116,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddingResponse"
+                  "$ref": "#/components/schemas/QueryEmbeddingResponse"
                 }
               }
             }
@@ -137,7 +137,7 @@
     "/embed/images": {
       "post": {
         "summary": "Embed Images",
-        "description": "Generate embeddings for uploaded images",
+        "description": "Generate embeddings for uploaded images + image-token boundaries.",
         "operationId": "embed_images_embed_images_post",
         "requestBody": {
           "content": {
@@ -155,7 +155,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddingResponse"
+                  "$ref": "#/components/schemas/ImageEmbeddingBatchResponse"
                 }
               }
             }
@@ -193,7 +193,110 @@
         ],
         "title": "Body_embed_images_embed_images_post"
       },
-      "EmbeddingResponse": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ImageEmbeddingBatchResponse": {
+        "properties": {
+          "embeddings": {
+            "items": {
+              "$ref": "#/components/schemas/ImageEmbeddingItem"
+            },
+            "type": "array",
+            "title": "Embeddings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "embeddings"
+        ],
+        "title": "ImageEmbeddingBatchResponse"
+      },
+      "ImageEmbeddingItem": {
+        "properties": {
+          "embedding": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Embedding"
+          },
+          "image_patch_start": {
+            "type": "integer",
+            "title": "Image Patch Start"
+          },
+          "image_patch_len": {
+            "type": "integer",
+            "title": "Image Patch Len"
+          }
+        },
+        "type": "object",
+        "required": [
+          "embedding",
+          "image_patch_start",
+          "image_patch_len"
+        ],
+        "title": "ImageEmbeddingItem"
+      },
+      "PatchBatchResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Results"
+          }
+        },
+        "type": "object",
+        "required": [
+          "results"
+        ],
+        "title": "PatchBatchResponse"
+      },
+      "PatchRequest": {
+        "properties": {
+          "dimensions": {
+            "items": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Dimensions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "dimensions"
+        ],
+        "title": "PatchRequest"
+      },
+      "QueryEmbeddingResponse": {
         "properties": {
           "embeddings": {
             "items": {
@@ -213,56 +316,7 @@
         "required": [
           "embeddings"
         ],
-        "title": "EmbeddingResponse"
-      },
-      "HTTPValidationError": {
-        "properties": {
-          "detail": {
-            "items": {
-              "$ref": "#/components/schemas/ValidationError"
-            },
-            "type": "array",
-            "title": "Detail"
-          }
-        },
-        "type": "object",
-        "title": "HTTPValidationError"
-      },
-      "PatchRequest": {
-        "properties": {
-          "width": {
-            "type": "integer",
-            "title": "Width"
-          },
-          "height": {
-            "type": "integer",
-            "title": "Height"
-          }
-        },
-        "type": "object",
-        "required": [
-          "width",
-          "height"
-        ],
-        "title": "PatchRequest"
-      },
-      "PatchResponse": {
-        "properties": {
-          "n_patches_x": {
-            "type": "integer",
-            "title": "N Patches X"
-          },
-          "n_patches_y": {
-            "type": "integer",
-            "title": "N Patches Y"
-          }
-        },
-        "type": "object",
-        "required": [
-          "n_patches_x",
-          "n_patches_y"
-        ],
-        "title": "PatchResponse"
+        "title": "QueryEmbeddingResponse"
       },
       "QueryRequest": {
         "properties": {
