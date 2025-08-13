@@ -116,7 +116,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddingResponse"
+                  "$ref": "#/components/schemas/QueryEmbeddingResponse"
                 }
               }
             }
@@ -137,7 +137,7 @@
     "/embed/images": {
       "post": {
         "summary": "Embed Images",
-        "description": "Generate embeddings for uploaded images",
+        "description": "Generate embeddings for uploaded images + image-token boundaries.",
         "operationId": "embed_images_embed_images_post",
         "requestBody": {
           "content": {
@@ -155,7 +155,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/EmbeddingResponse"
+                  "$ref": "#/components/schemas/ImageEmbeddingBatchResponse"
                 }
               }
             }
@@ -193,28 +193,6 @@
         ],
         "title": "Body_embed_images_embed_images_post"
       },
-      "EmbeddingResponse": {
-        "properties": {
-          "embeddings": {
-            "items": {
-              "items": {
-                "items": {
-                  "type": "number"
-                },
-                "type": "array"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "title": "Embeddings"
-          }
-        },
-        "type": "object",
-        "required": [
-          "embeddings"
-        ],
-        "title": "EmbeddingResponse"
-      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -227,6 +205,51 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ImageEmbeddingBatchResponse": {
+        "properties": {
+          "embeddings": {
+            "items": {
+              "$ref": "#/components/schemas/ImageEmbeddingItem"
+            },
+            "type": "array",
+            "title": "Embeddings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "embeddings"
+        ],
+        "title": "ImageEmbeddingBatchResponse"
+      },
+      "ImageEmbeddingItem": {
+        "properties": {
+          "embedding": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Embedding"
+          },
+          "image_patch_start": {
+            "type": "integer",
+            "title": "Image Patch Start"
+          },
+          "image_patch_len": {
+            "type": "integer",
+            "title": "Image Patch Len"
+          }
+        },
+        "type": "object",
+        "required": [
+          "embedding",
+          "image_patch_start",
+          "image_patch_len"
+        ],
+        "title": "ImageEmbeddingItem"
       },
       "PatchRequest": {
         "properties": {
@@ -263,6 +286,28 @@
           "n_patches_y"
         ],
         "title": "PatchResponse"
+      },
+      "QueryEmbeddingResponse": {
+        "properties": {
+          "embeddings": {
+            "items": {
+              "items": {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Embeddings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "embeddings"
+        ],
+        "title": "QueryEmbeddingResponse"
       },
       "QueryRequest": {
         "properties": {

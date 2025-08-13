@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import List, Union
+from typing import List, Union, Optional
 
 import torch
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -30,8 +30,8 @@ class QueryRequest(BaseModel):
     queries: Union[str, List[str]]
 
 
-class EmbeddingResponse(BaseModel):
-    embeddings: List[List[List[float]]]  # 3D: [batch, sequence_length, hidden_dim]
+class QueryEmbeddingResponse(BaseModel):
+    embeddings: List[List[List[float]]]
 
 
 class PatchResponse(BaseModel):
@@ -44,6 +44,17 @@ class PatchRequest(BaseModel):
     height: int
 
 
+class ImageEmbeddingItem(BaseModel):
+    # A single image's embeddings and the image-token boundaries
+    embedding: List[List[float]]  # [sequence_length, hidden_dim]
+    image_patch_start: int  # index where image tokens begin
+    image_patch_len: int  # number of image tokens (should equal x_patches * y_patches)
+
+
+class ImageEmbeddingBatchResponse(BaseModel):
+    embeddings: List[ImageEmbeddingItem]
+
+
 def load_image_from_bytes(image_bytes: bytes) -> Image.Image:
     """Load PIL Image from bytes"""
     return Image.open(BytesIO(image_bytes)).convert("RGB")
@@ -52,27 +63,76 @@ def load_image_from_bytes(image_bytes: bytes) -> Image.Image:
 def generate_query_embeddings(queries: List[str]) -> List[torch.Tensor]:
     """Generate embeddings for text queries"""
     device = model.device
-    embeddings = []
-
     with torch.no_grad():
         batch_query = processor.process_queries(queries).to(device)
-        query_embeddings = model(**batch_query)
-        embeddings = list(torch.unbind(query_embeddings.to("cpu")))
+        query_embeddings = model(**batch_query)  # [batch, seq, dim] (as tensor)
+        # Unbind into per-sample tensors on CPU
+        return list(torch.unbind(query_embeddings.to("cpu")))
 
-    return embeddings
 
-
-def generate_image_embeddings(images: List[Image.Image]) -> List[torch.Tensor]:
-    """Generate embeddings for images"""
+def generate_image_embeddings_with_boundaries(
+    images: List[Image.Image],
+) -> List[ImageEmbeddingItem]:
+    """Generate embeddings for images and expose image-token boundaries."""
     device = model.device
-    embeddings = []
-
     with torch.no_grad():
+        # Tokenize / encode images
         batch_images = processor.process_images(images).to(device)
-        image_embeddings = model(**batch_images)
-        embeddings = list(torch.unbind(image_embeddings.to("cpu")))
 
-    return embeddings
+        # Forward pass
+        image_embeddings = model(**batch_images)  # [batch, seq, dim]
+        image_embeddings = image_embeddings.to("cpu")
+
+        # Expect token ids to be present, so we can find image-token spans
+        if "input_ids" not in batch_images:
+            raise RuntimeError(
+                "Tokenizer output missing 'input_ids'; cannot compute image token boundaries."
+            )
+
+        input_ids = batch_images["input_ids"].to("cpu")  # [batch, seq]
+        image_token_id = processor.image_token_id
+
+        batch_items: List[ImageEmbeddingItem] = []
+        batch_size = input_ids.shape[0]
+
+        for i in range(batch_size):
+            ids = input_ids[i]  # [seq]
+            emb = image_embeddings[i]  # [seq, dim]
+
+            mask = ids.eq(image_token_id)  # bool mask for image tokens
+            indices = torch.nonzero(mask, as_tuple=False).squeeze(
+                -1
+            )  # [num_image_tokens] or []
+
+            if indices.numel() == 0:
+                # No image tokens found; return sentinel values
+                start = -1
+                length = 0
+            else:
+                start = int(indices[0].item())
+                length = int(indices.numel())
+
+                # Sanity: ensure all indices are contiguous (as expected for image patches)
+                # If there are gaps, we still use [start:length] but this flags a potential tokenizer change.
+                # We won't throw here to avoid breaking callers; they can validate further.
+                if not torch.all(
+                    indices == torch.arange(indices[0], indices[0] + indices.numel())
+                ):
+                    # Non-contiguous; still report start and length, but you may want to log this server-side.
+                    print(
+                        "Warning: Non-contiguous image tokens found. This may indicate a tokenizer change."
+                    )
+                    pass
+
+            batch_items.append(
+                ImageEmbeddingItem(
+                    embedding=emb.tolist(),
+                    image_patch_start=start,
+                    image_patch_len=length,
+                )
+            )
+
+        return batch_items
 
 
 # API Endpoints
@@ -98,7 +158,6 @@ async def version():
         "dtype": str(model.dtype),
         "flash_attn": is_flash_attn_2_available(),
         "spatial_merge_size": model.spatial_merge_size,
-        "parameters": model.parameters(),
         "dim": model.dim,
         "image_token_id": processor.image_token_id,
     }
@@ -114,7 +173,6 @@ async def get_n_patches(request: PatchRequest):
             - height: int - height of the image in pixels
     """
     try:
-        # Pass image size as (width, height) tuple as expected by the processor
         image_size = (request.width, request.height)
         n_patches_x, n_patches_y = processor.get_n_patches(
             image_size, spatial_merge_size=model.spatial_merge_size
@@ -126,25 +184,19 @@ async def get_n_patches(request: PatchRequest):
         )
 
 
-@app.post("/embed/queries", response_model=EmbeddingResponse)
+@app.post("/embed/queries", response_model=QueryEmbeddingResponse)
 async def embed_queries(request: QueryRequest):
     """Generate embeddings for text queries"""
     try:
-        # Handle single query or list of queries
         queries = (
             [request.queries] if isinstance(request.queries, str) else request.queries
         )
-
         if not queries:
             raise HTTPException(status_code=400, detail="No queries provided")
 
-        # Generate embeddings
         embeddings_tensors = generate_query_embeddings(queries)
-
-        # Convert tensors to lists
         embeddings_list = [embedding.tolist() for embedding in embeddings_tensors]
-
-        return EmbeddingResponse(embeddings=embeddings_list)
+        return QueryEmbeddingResponse(embeddings=embeddings_list)
 
     except Exception as e:
         raise HTTPException(
@@ -152,33 +204,24 @@ async def embed_queries(request: QueryRequest):
         )
 
 
-@app.post("/embed/images", response_model=EmbeddingResponse)
+@app.post("/embed/images", response_model=ImageEmbeddingBatchResponse)
 async def embed_images(files: List[UploadFile] = File(...)):
-    """Generate embeddings for uploaded images"""
+    """Generate embeddings for uploaded images + image-token boundaries."""
     try:
         if not files:
             raise HTTPException(status_code=400, detail="No images provided")
 
-        images = []
+        images: List[Image.Image] = []
         for file in files:
-            # Validate file type
             if not file.content_type.startswith("image/"):
                 raise HTTPException(
                     status_code=400, detail=f"File {file.filename} is not an image"
                 )
-
-            # Read and convert to PIL Image
             image_bytes = await file.read()
-            image = load_image_from_bytes(image_bytes)
-            images.append(image)
+            images.append(load_image_from_bytes(image_bytes))
 
-        # Generate embeddings
-        embeddings_tensors = generate_image_embeddings(images)
-
-        # Convert tensors to lists
-        embeddings_list = [embedding.tolist() for embedding in embeddings_tensors]
-
-        return EmbeddingResponse(embeddings=embeddings_list)
+        items = generate_image_embeddings_with_boundaries(images)
+        return ImageEmbeddingBatchResponse(embeddings=items)
 
     except HTTPException:
         raise
