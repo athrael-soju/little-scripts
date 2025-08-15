@@ -51,7 +51,7 @@ A FastAPI-based service for generating embeddings from images and text queries u
 ### Starting the Server
 
 ```bash
-uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app:app --host 0.0.0.0 --port 7000 --reload
 ```
 
 ### API Endpoints
@@ -165,7 +165,7 @@ This service uses the `vidore/colqwen2.5-v0.2` model, which is based on ColQwen2
 #### Get Embeddings for Text Queries
 
 ```bash
-curl -X POST "http://localhost:8000/embed/queries" \
+curl -X POST "http://localhost:7000/embed/queries" \
      -H "Content-Type: application/json" \
      -d '{"queries": ["example query"]}'
 ```
@@ -173,7 +173,7 @@ curl -X POST "http://localhost:8000/embed/queries" \
 #### Get Embeddings for Images
 
 ```bash
-curl -X POST "http://localhost:8000/embed/images" \
+curl -X POST "http://localhost:7000/embed/images" \
      -H "Content-Type: multipart/form-data" \
      -F "files=@image1.jpg" \
      -F "files=@image2.jpg"
@@ -183,7 +183,7 @@ curl -X POST "http://localhost:8000/embed/images" \
 
 ### Interactive Documentation
 
-Once the server is running, visit `http://localhost:8000/docs` for interactive API documentation powered by Swagger UI.
+Once the server is running, visit `http://localhost:7000/docs` for interactive API documentation powered by Swagger UI.
 
 ### Generating OpenAPI Specification
 
