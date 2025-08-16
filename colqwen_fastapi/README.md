@@ -8,7 +8,7 @@ A FastAPI-based service for generating embeddings from images and text queries u
 - 🔤 **Text Embeddings**: Generate embeddings for text queries
 - 🚀 **High Performance**: Utilizes Flash Attention 2 when available
 - 📊 **RESTful API**: Easy integration with other services
-- 🏥 **Health Monitoring**: Built-in health check and version endpoints
+- 🏥 **Health Monitoring**: Built-in health and info endpoints
 - 📏 **Patch Calculation**: Utility endpoint for patch calculations
 - 🔄 **Batch Processing**: Support for processing multiple images/queries in a single request
 
@@ -24,7 +24,7 @@ A FastAPI-based service for generating embeddings from images and text queries u
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/athrael.soju/little-scripts.git
+   git clone https://github.com/athrael-soju/little-scripts.git
    cd little-scripts/colqwen_fastapi
    ```
 
@@ -54,13 +54,31 @@ A FastAPI-based service for generating embeddings from images and text queries u
 uvicorn app:app --host 0.0.0.0 --port 7000 --reload
 ```
 
+### Docker
+
+Run with Docker Compose (recommended):
+
+```bash
+# CPU service on http://localhost:7001
+docker compose up -d api-cpu
+
+# GPU service on http://localhost:7002 (requires NVIDIA Container Toolkit)
+docker compose up -d api-gpu
+```
+
+Notes:
+- Images are built from `Dockerfile.cpu` and `Dockerfile.gpu`.
+- The Hugging Face cache is persisted in a named volume `hf-cache` at `/data/hf-cache`.
+- GPU service requires recent NVIDIA drivers and Docker `--gpus` support.
+
 ### API Endpoints
 
 #### Root Endpoint
-- `GET /`: Returns a welcome message
+- `GET /`: Returns API name and version
   ```json
   {
-    "message": "Welcome to ColQwen2.5 Embedding Service"
+    "message": "ColQwen2.5 Embedding API",
+    "version": "0.0.2"
   }
   ```
 
@@ -69,34 +87,42 @@ uvicorn app:app --host 0.0.0.0 --port 7000 --reload
   ```json
   {
     "status": "healthy",
-    "timestamp": "2025-08-12T16:43:30.123456"
-  }
-  ```
-
-#### Version
-- `GET /version`: Get service version information
-  ```json
-  {
-    "version": "0.2.0",
-    "model": "vidore/colqwen2.5-v0.2",
     "device": "cuda:0"
   }
   ```
 
+#### Service Info
+- `GET /info`: Get service and model information
+  ```json
+  {
+    "version": "0.0.2",
+    "device": "cuda:0",
+    "dtype": "torch.bfloat16",
+    "flash_attn": true,
+    "spatial_merge_size": 2,
+    "dim": 1536,
+    "image_token_id": 151655
+  }
+  ```
+
 #### Patch Calculation
-- `POST /patches`: Calculate number of patches for given image dimensions
+- `POST /patches`: Calculate number of patches for given image dimensions (batch)
   **Request Body**:
   ```json
   {
-    "width": 1024,
-    "height": 768
+    "dimensions": [
+      { "width": 1024, "height": 768 },
+      { "width": 512,  "height": 512 }
+    ]
   }
   ```
   **Response**:
   ```json
   {
-    "n_patches_x": 32,
-    "n_patches_y": 24
+    "results": [
+      { "width": 1024, "height": 768, "n_patches_x": 32, "n_patches_y": 24 },
+      { "width": 512,  "height": 512, "n_patches_x": 16, "n_patches_y": 16 }
+    ]
   }
   ```
 
@@ -117,6 +143,9 @@ uvicorn app:app --host 0.0.0.0 --port 7000 --reload
     ]
   }
   ```
+  Notes:
+  - `queries` may be a single string or a list of strings.
+  - Shape per item is `[sequence_length, hidden_dim]`.
 
 #### Image Embeddings
 - `POST /embed/images`: Generate embeddings for uploaded images
@@ -125,11 +154,16 @@ uvicorn app:app --host 0.0.0.0 --port 7000 --reload
   ```json
   {
     "embeddings": [
-      [[0.1, 0.2, ...], ...],
-      [[0.3, 0.4, ...], ...]
+      {
+        "embedding": [[0.1, 0.2, ...], ...],
+        "image_patch_start": 128,
+        "image_patch_len": 256
+      }
     ]
   }
   ```
+  Notes:
+  - For each image, the response includes the embedding matrix and the image-token span within the sequence.
 
 ## Error Handling
 
@@ -149,16 +183,12 @@ uvicorn app:app --reload
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
 
 ## Model Information
 
-This service uses the `vidore/colqwen2.5-v0.2` model, which is based on ColQwen2.5 architecture.
-- `GET /health`: Health check
-- `GET /version`: Get API version
-- `POST /patches`: Calculate number of patches for given image dimensions
-- `POST /embed/queries`: Generate embeddings for text queries
-- `POST /embed/images`: Generate embeddings for uploaded images
+This service uses the `vidore/colqwen2.5-v0.2` model (ColQwen2.5 architecture) via `colpali_engine`.
+See `GET /info` for runtime details like device, dtype, and model token ids.
 
 ### Example Requests
 
@@ -178,6 +208,8 @@ curl -X POST "http://localhost:7000/embed/images" \
      -F "files=@image1.jpg" \
      -F "files=@image2.jpg"
 ```
+
+If running with Docker Compose, replace `7000` with `7001` (CPU) or `7002` (GPU).
 
 ## API Documentation
 
@@ -205,7 +237,3 @@ The OpenAPI spec is automatically generated from your FastAPI application's rout
 ## Configuration
 
 The service automatically uses GPU if available. To force CPU usage or configure other settings, modify the model loading parameters in `app.py`.
-
-## License
-
-This project is part of the Little Scripts monorepo. See the main [LICENSE](../LICENSE) file for details.
