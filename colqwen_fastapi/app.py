@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import List, Union, Optional
+from typing import List, Union
 
 import torch
 from fastapi import FastAPI, File, UploadFile, HTTPException
@@ -22,7 +22,9 @@ model = ColQwen2_5.from_pretrained(
     device_map=(
         "cuda:0"
         if torch.cuda.is_available()
-        else "mps" if torch.backends.mps.is_available() else "cpu"
+        else "mps"
+        if torch.backends.mps.is_available()
+        else "cpu"
     ),
     attn_implementation="flash_attention_2" if is_flash_attn_2_available() else None,
 ).eval()
@@ -129,7 +131,6 @@ def generate_image_embeddings_with_boundaries(
                     print(
                         "Warning: Non-contiguous image tokens found. This may indicate a tokenizer change."
                     )
-                    pass
 
             batch_items.append(
                 ImageEmbeddingItem(
