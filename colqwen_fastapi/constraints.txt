@@ -1,0 +1,11 @@
+# Pin your Torch/TorchVision builds here to prevent other deps from changing them.
+# Use either exact versions (Option A) or exact wheel URLs (Option B).
+# After you set these, Docker will use them as constraints when installing other packages.
+
+# Option A: pin by version (edit to your chosen versions)
+torch==2.8.0
+torchvision==0.23.0
+
+# Option B: pin exact wheel URLs (safest)
+# torch @ https://download.pytorch.org/whl/cu129/torch-2.4.0%2Bcu129-cp310-cp310-manylinux2014_x86_64.whl
+# torchvision @ https://download.pytorch.org/whl/cu129/torchvision-0.19.0%2Bcu129-cp310-cp310-manylinux2014_x86_64.whl

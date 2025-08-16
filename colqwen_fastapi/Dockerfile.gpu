@@ -1,6 +1,5 @@
-# GPU Dockerfile for ColQwen FastAPI
-# Uses CUDA-enabled PyTorch wheels with NVIDIA Container Runtime
-FROM python:3.10-slim
+# GPU-enabled Dockerfile for ColQwen FastAPI
+FROM python:3.12-slim
 
 # Environment
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -13,19 +12,14 @@ WORKDIR /app
 
 # System deps (git needed for installing from GitHub)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install CUDA-enabled PyTorch first to ensure the correct wheels
-# Requires running with --gpus and NVIDIA drivers on host
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu128 \
-        torch torchvision
-
-# Install remaining Python deps
+# Install Python deps
 COPY requirements.txt ./
-RUN sed '/^torch\($\|==\|>=\|<=\)/d;/^torchvision\($\|==\|>=\|<=\)/d' requirements.txt > requirements.notorch \
-    && pip install --no-cache-dir -r requirements.notorch
+RUN pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt  \
+    && pip install --no-cache-dir --upgrade --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu129
 
 # Copy app
 COPY . /app

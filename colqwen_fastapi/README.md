@@ -71,6 +71,18 @@ Notes:
 - The Hugging Face cache is persisted in a named volume `hf-cache` at `/data/hf-cache`.
 - GPU service requires recent NVIDIA drivers and Docker `--gpus` support.
 
+#### Build images
+
+- Standard docker build:
+  ```bash
+  docker build -f Dockerfile.cpu -t colqwen-api-cpu .
+  docker build -f Dockerfile.gpu -t colqwen-api-gpu .
+  ```
+- Or with Docker Compose:
+  ```bash
+  docker compose build
+  ```
+
 ### API Endpoints
 
 #### Root Endpoint
