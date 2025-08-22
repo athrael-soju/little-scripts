@@ -110,6 +110,24 @@ An interactive web application for panoptic segmentation using the EOMT (Encoder
 </details>
 
 <details>
+<summary><strong>📊 ViDoRe Benchmark Runner</strong></summary>
+
+A little script to run the ViDoRe (v1 and v2) benchmarks from MTEB using the official ViDoRe model wrapper.
+
+**Quick Start:**
+
+```bash
+cd vidore_benchmark
+pip install -r requirements.txt \
+  && pip install --upgrade --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu129
+python app.py
+```
+
+[📖 View Full Documentation](./vidore_benchmark/README.md)
+
+</details>
+
+<details>
 <summary><strong>🔧 Future Projects</strong></summary>
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
@@ -145,6 +163,7 @@ little-scripts/
 ├── colqwen_omni/                  # Audio RAG system with ColQwen2.5-Omni
 ├── colnomic_qdrant_rag/           # Multimodal document retrieval system
 ├── eomt_panoptic_seg/             # Image segmentation web app
+├── vidore_benchmark/              # ViDoRe benchmark runner
 └── [future-projects]/             # Additional projects will be added here
 ```
 
