@@ -128,6 +128,24 @@ python app.py
 </details>
 
 <details>
+<summary><strong>📝 PaddleOCR-VL FastAPI Service</strong></summary>
+
+A GPU-aware FastAPI service based on PaddleOCR-VL for extracting rich document structure from images and PDFs.
+
+**What it does:**
+
+- 📄 Accepts images (JPEG/PNG/BMP/TIFF) and PDFs up to 50 MB
+- 🧠 Returns structured blocks with bounding boxes, aggregated text, and Markdown
+- ⚙️ Lazy-loads PaddleOCR-VL for quick startup and GPU-friendly concurrency
+- 🩺 Exposes health status along with interactive API docs
+
+**Key highlights:** Docker + Compose manifests with CUDA 13.0 base image, injectable pipeline factory for testing, detailed logging.
+
+[📖 View Full Documentation](./paddleocr_vl/README.md)
+
+</details>
+
+<details>
 <summary><strong>🔧 Future Projects</strong></summary>
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
@@ -401,4 +419,3 @@ Open source - feel free to use and modify as needed.
 <div align="center">
   <p>⭐ If you find this repository useful, please consider giving it a star!</p>
 </div>
-
