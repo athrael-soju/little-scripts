@@ -6,7 +6,7 @@
 
 ## About
 
-A monorepo containing various utility scripts, tools, and applications for development, automation, and AI-powered tasks.
+A monorepo containing various utility scripts, tools, and applications for development, automation, and AI-powered tasks. Like what you see, or find it useful? Drop a star!!!
 
 ## 📁 Projects
 
