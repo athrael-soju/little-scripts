@@ -162,7 +162,7 @@ docker compose up --build
 
 
 <details>
-<summary><strong>📝 PaddleOCR-VL FastAPI Service</strong></summary>
+<summary><strong>📝 PaddleOCR-VL Service</strong></summary>
 
 A GPU-aware FastAPI service based on PaddleOCR-VL for extracting rich document structure from images and PDFs.
 
