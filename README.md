@@ -128,18 +128,18 @@ python app.py
 </details>
 
 <details>
-<summary><strong>DeepSeek OCR Service</strong></summary>
+<summary><strong>📝 DeepSeek OCR Service</strong></summary>
 
 A GPU-friendly FastAPI wrapper around `deepseek-ai/DeepSeek-OCR` that turns images and PDFs into cleaned text, markdown with inline figures, bounding boxes, and annotated previews.
 
 **What it does:**
 
-- Accepts JPEG/PNG/WebP images or multi-page PDFs up to the configured upload limit.
-- Offers five processing modes (Gundam -> Large) plus task-specific prompts for markdown, free-form OCR, descriptions, locate queries, or custom instructions.
-- Returns markdown, raw output, structured bounding boxes, cropped figures (base64), and annotated overview images in a single JSON payload.
-- Exposes `/health`, `/info`, and `/api/ocr` endpoints with automatic CORS handling and model telemetry.
+- 🖼️ Accepts JPEG/PNG/WebP images or PDFs (multi-page) up to the configured upload limit.
+- 🎛️ Offers five processing modes (Gundam through Large) and task-specific prompts for markdown, plain OCR, descriptions, locate queries, or custom instructions.
+- 🧱 Returns markdown, raw output, structured bounding boxes, cropped figures (base64), and annotated overview images in a single JSON payload.
+- 📡 Exposes `/health`, `/info`, and `/api/ocr` endpoints with automatic CORS handling and detailed startup logs.
 
-**Quick Start (local):**
+**Quick Start:**
 
 ```bash
 cd deepseek-ocr
@@ -156,7 +156,7 @@ cd deepseek-ocr
 docker compose up --build
 ```
 
-[View Full Documentation](./deepseek-ocr/README.md)
+[📖 View Full Documentation](./deepseek-ocr/README.md)
 
 </details>
 
