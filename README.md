@@ -128,6 +128,40 @@ python app.py
 </details>
 
 <details>
+<summary><strong>DeepSeek OCR Service</strong></summary>
+
+A GPU-friendly FastAPI wrapper around `deepseek-ai/DeepSeek-OCR` that turns images and PDFs into cleaned text, markdown with inline figures, bounding boxes, and annotated previews.
+
+**What it does:**
+
+- Accepts JPEG/PNG/WebP images or multi-page PDFs up to the configured upload limit.
+- Offers five processing modes (Gundam -> Large) plus task-specific prompts for markdown, free-form OCR, descriptions, locate queries, or custom instructions.
+- Returns markdown, raw output, structured bounding boxes, cropped figures (base64), and annotated overview images in a single JSON payload.
+- Exposes `/health`, `/info`, and `/api/ocr` endpoints with automatic CORS handling and model telemetry.
+
+**Quick Start (local):**
+
+```bash
+cd deepseek-ocr
+cp .env.example .env
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python main.py
+```
+
+**Docker (GPU):**
+
+```bash
+cd deepseek-ocr
+docker compose up --build
+```
+
+[View Full Documentation](./deepseek-ocr/README.md)
+
+</details>
+
+
+<details>
 <summary><strong>📝 PaddleOCR-VL FastAPI Service</strong></summary>
 
 A GPU-aware FastAPI service based on PaddleOCR-VL for extracting rich document structure from images and PDFs.
@@ -181,6 +215,7 @@ little-scripts/
 ├── colqwen_omni/                  # Audio RAG system with ColQwen2.5-Omni
 ├── colnomic_qdrant_rag/           # Multimodal document retrieval system
 ├── eomt_panoptic_seg/             # Image segmentation web app
+├── deepseek-ocr/                  # FastAPI wrapper for DeepSeek-OCR
 ├── vidore_benchmark/              # ViDoRe benchmark runner
 └── [future-projects]/             # Additional projects will be added here
 ```
