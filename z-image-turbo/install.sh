@@ -5,10 +5,14 @@
 set -e
 
 echo "Installing PyTorch 2.7.0 with CUDA 12.8..."
-uv pip install --no-cache-dir torch==2.7.0 torchvision --index-url https://download.pytorch.org/whl/cu128
+uv pip install --no-cache-dir \
+    torch==2.7.0 \
+    torchvision==0.22.0 \
+    --index-url https://download.pytorch.org/whl/cu128
 
 echo "Installing Flash Attention 2.7.4..."
-uv pip install --no-cache-dir https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12.9torch2.7cxx11abiFALSE-cp312-cp312-linux_x86_64.whl
+uv pip install --no-cache-dir \
+    https://github.com/loscrossos/lib_flashattention/releases/download/v2.7.4.post1_crossos00/flash_attn-2.7.4.post1+cu129torch2.7.0-cp312-cp312-linux_x86_64.whl
 
 echo "Installing project dependencies..."
 uv pip install --no-cache-dir -r requirements.txt
