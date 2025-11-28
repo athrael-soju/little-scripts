@@ -180,6 +180,35 @@ A GPU-aware FastAPI service based on PaddleOCR-VL for extracting rich document s
 </details>
 
 <details>
+<summary><strong>🎨 Z-Image-Turbo</strong></summary>
+
+A high-performance image generation application powered by the Z-Image-Turbo model with a Gradio interface for text-to-image synthesis. Based on the [official Gradio demo](https://huggingface.co/spaces/Tongyi-MAI/Z-Image-Turbo), refactored with additional features.
+
+**What it does:**
+
+- 🖼️ **Text-to-Image Generation**: Generate high-quality images from text prompts using the Z-Image-Turbo diffusion transformer model
+- 📐 **Multiple Resolutions**: Support for 20+ resolution options across 1024px and 1280px bases with various aspect ratios
+- ✨ **Prompt Enhancement**: AI-powered prompt expansion via Qwen API for better image generation
+- ⚡ **Performance Optimization**: Automatic Flash Attention 2/3 detection and optional PyTorch compilation
+- 🌐 **Multi-Language UI**: Interface available in English, Chinese, Korean, Spanish, Japanese, French, German, and Portuguese
+
+**Quick Start:**
+
+```bash
+cd z-image-turbo
+cp .env.example .env
+python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
+uv pip install -r requirements.txt
+python app.py
+```
+
+**Key highlights:** Gradio-based web UI, configurable attention backends, model warmup for production, 12GB+ VRAM recommended.
+
+[📖 View Full Documentation](./z-image-turbo/README.md)
+
+</details>
+
+<details>
 <summary><strong>🔧 Future Projects</strong></summary>
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
@@ -217,6 +246,7 @@ little-scripts/
 ├── eomt_panoptic_seg/             # Image segmentation web app
 ├── deepseek-ocr/                  # FastAPI wrapper for DeepSeek-OCR
 ├── vidore_benchmark/              # ViDoRe benchmark runner
+├── z-image-turbo/                 # Z-Image-Turbo text-to-image generation
 └── [future-projects]/             # Additional projects will be added here
 ```
 
@@ -434,8 +464,10 @@ Open source - feel free to use and modify as needed.
 - **colpali**
 - **colqwen**
 - **computer-vision**
+- **diffusion-models**
 - **document-retrieval**
 - **gradio**
+- **image-generation**
 - **machine-learning**
 - **multimodal-search**
 - **openai-api**
@@ -445,6 +477,7 @@ Open source - feel free to use and modify as needed.
 - **rag-system**
 - **reranking**
 - **speech-to-text**
+- **text-to-image**
 - **transformers**
 - **utilities**
 - **vector-database**

@@ -1,0 +1,6 @@
+gradio
+transformers
+accelerate
+openai
+git+https://github.com/huggingface/diffusers.git
+kernels
