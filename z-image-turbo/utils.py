@@ -1,7 +1,5 @@
 """Utility functions for Z-Image-Turbo application."""
 
-import re
-
 
 def get_resolution(resolution):
     """
@@ -13,7 +11,19 @@ def get_resolution(resolution):
     Returns:
         tuple: (width, height) as integers
     """
-    match = re.search(r"(\d+)\s*[×x]\s*(\d+)", resolution)
-    if match:
-        return int(match.group(1)), int(match.group(2))
+    # Remove all whitespace and normalize separator
+    normalized = resolution.replace(" ", "").replace("×", "x")
+
+    # Split by 'x' and parse dimensions
+    if "x" in normalized:
+        parts = normalized.split("x", 1)
+        if len(parts) == 2:
+            try:
+                # Extract only digits from each part
+                width = int("".join(c for c in parts[0] if c.isdigit()))
+                height = int("".join(c for c in parts[1] if c.isdigit()))
+                return width, height
+            except ValueError:
+                pass
+
     return 1024, 1024
