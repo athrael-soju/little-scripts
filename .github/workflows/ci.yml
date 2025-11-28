@@ -1,0 +1,275 @@
+# =============================================================================
+# CI Workflow
+# =============================================================================
+# Continuous Integration pipeline for the little-scripts monorepo
+# Runs tests, dependency checks, and validates project structure
+# =============================================================================
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+  # Run weekly to catch dependency issues
+  schedule:
+    - cron: "0 0 * * 0"
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ===========================================================================
+  # Dependency Validation
+  # ===========================================================================
+  validate-deps:
+    name: Validate Dependencies
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check requirements.txt files exist
+        run: |
+          echo "Checking for requirements.txt in each project..."
+          for dir in */; do
+            if [ -d "$dir" ] && [ "$dir" != ".github/" ]; then
+              if [ -f "$dir/requirements.txt" ]; then
+                echo "✓ $dir has requirements.txt"
+              elif [ -f "$dir/pyproject.toml" ]; then
+                echo "✓ $dir has pyproject.toml"
+              else
+                # Only warn for directories that look like Python projects
+                if ls "$dir"*.py 1> /dev/null 2>&1; then
+                  echo "⚠ $dir appears to be a Python project but has no requirements.txt"
+                fi
+              fi
+            fi
+          done
+
+      - name: Validate requirements.txt syntax
+        run: |
+          pip install pip-tools
+          for req in */requirements.txt; do
+            echo "::group::Validating $req"
+            # Check for syntax errors (excluding git+ URLs which are valid)
+            grep -v "^#" "$req" | grep -v "^$" | grep -v "^git+" | while read line; do
+              # Basic validation - check if line looks like a package spec
+              if [[ ! "$line" =~ ^[a-zA-Z0-9_-]+(\[.*\])?([<>=!].*)?$ ]]; then
+                echo "⚠ Unusual line in $req: $line"
+              fi
+            done || true
+            echo "::endgroup::"
+          done
+
+      - name: Check for common dependency conflicts
+        run: |
+          echo "Analyzing shared dependencies across projects..."
+          echo ""
+          echo "Packages used in multiple projects:"
+          cat */requirements.txt 2>/dev/null | \
+            grep -v "^#" | grep -v "^$" | grep -v "^git+" | \
+            sed 's/[<>=!].*//' | sed 's/\[.*//' | \
+            tr '[:upper:]' '[:lower:]' | \
+            sort | uniq -c | sort -rn | \
+            awk '$1 > 1 {print "  " $2 " (" $1 " projects)"}'
+
+  # ===========================================================================
+  # Test Matrix - Run tests for each project
+  # ===========================================================================
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: validate-deps
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          pip install pytest pytest-cov pytest-asyncio
+
+      - name: Run tests
+        run: |
+          # Run pytest if tests directory exists
+          if [ -d "tests" ] || find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then
+            pytest -v --tb=short || echo "::warning::Some tests failed or no tests found"
+          else
+            echo "::notice::No tests directory found. Consider adding tests!"
+          fi
+        continue-on-error: true
+
+  # ===========================================================================
+  # Project Structure Validation
+  # ===========================================================================
+  validate-structure:
+    name: Validate Project Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check required root files
+        run: |
+          echo "Checking required root files..."
+          required_files=("README.md" "LICENSE" ".gitignore" "pyproject.toml" "Makefile")
+          for file in "${required_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✓ $file exists"
+            else
+              echo "✗ $file is missing"
+              exit 1
+            fi
+          done
+
+      - name: Check project READMEs
+        run: |
+          echo "Checking for README.md in each project..."
+          missing_readmes=""
+          for dir in */; do
+            if [ -f "$dir/requirements.txt" ]; then
+              if [ ! -f "$dir/README.md" ]; then
+                missing_readmes="$missing_readmes $dir"
+                echo "⚠ $dir is missing README.md"
+              else
+                echo "✓ $dir has README.md"
+              fi
+            fi
+          done
+          if [ -n "$missing_readmes" ]; then
+            echo "::warning::Projects missing README.md:$missing_readmes"
+          fi
+
+      - name: Validate pyproject.toml
+        run: |
+          pip install tomli
+          python -c "
+          import tomli
+          with open('pyproject.toml', 'rb') as f:
+              config = tomli.load(f)
+
+          # Check required sections
+          required = ['tool.ruff', 'tool.pytest.ini_options', 'tool.mypy']
+          for section in required:
+              parts = section.split('.')
+              current = config
+              for part in parts:
+                  if part not in current:
+                      print(f'✗ Missing section: {section}')
+                      exit(1)
+                  current = current[part]
+              print(f'✓ Section {section} exists')
+          "
+
+  # ===========================================================================
+  # Security Scanning
+  # ===========================================================================
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install safety
+        run: pip install safety
+
+      - name: Run security scan on dependencies
+        run: |
+          # Scan each project's requirements for known vulnerabilities
+          for req in */requirements.txt; do
+            echo "::group::Scanning $req"
+            # Filter out git+ URLs and comments before scanning
+            grep -v "^#" "$req" | grep -v "^$" | grep -v "^git+" > /tmp/clean_req.txt || true
+            if [ -s /tmp/clean_req.txt ]; then
+              safety check -r /tmp/clean_req.txt --output text || true
+            fi
+            echo "::endgroup::"
+          done
+        continue-on-error: true
+
+  # ===========================================================================
+  # Docker Build Validation
+  # ===========================================================================
+  docker:
+    name: Validate Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find and validate Dockerfiles
+        run: |
+          dockerfiles=$(find . -name "Dockerfile*" -type f)
+          if [ -z "$dockerfiles" ]; then
+            echo "::notice::No Dockerfiles found"
+            exit 0
+          fi
+
+          echo "Found Dockerfiles:"
+          echo "$dockerfiles"
+
+          # Install hadolint for Dockerfile linting
+          wget -qO /tmp/hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+          chmod +x /tmp/hadolint
+
+          for dockerfile in $dockerfiles; do
+            echo "::group::Linting $dockerfile"
+            /tmp/hadolint "$dockerfile" || true
+            echo "::endgroup::"
+          done
+        continue-on-error: true
+
+  # ===========================================================================
+  # Summary Job
+  # ===========================================================================
+  summary:
+    name: CI Summary
+    runs-on: ubuntu-latest
+    needs: [validate-deps, test, validate-structure, security, docker]
+    if: always()
+
+    steps:
+      - name: Check job results
+        run: |
+          echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Dependencies | ${{ needs.validate-deps.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Validate Structure | ${{ needs.validate-structure.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Docker Validation | ${{ needs.docker.result }} |" >> $GITHUB_STEP_SUMMARY

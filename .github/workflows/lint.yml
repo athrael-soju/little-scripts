@@ -1,0 +1,123 @@
+# =============================================================================
+# Lint Workflow
+# =============================================================================
+# Runs code quality checks on all Python code in the monorepo
+# Triggers on: push to main, pull requests, and manual dispatch
+# =============================================================================
+
+name: Lint
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "**.py"
+      - "**.pyi"
+      - "pyproject.toml"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/lint.yml"
+  pull_request:
+    branches: [main, master]
+    paths:
+      - "**.py"
+      - "**.pyi"
+      - "pyproject.toml"
+      - ".pre-commit-config.yaml"
+      - ".github/workflows/lint.yml"
+  workflow_dispatch:
+
+# Cancel in-progress runs for the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ===========================================================================
+  # Ruff Linting
+  # ===========================================================================
+  ruff:
+    name: Ruff Lint & Format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff linter
+        run: ruff check . --output-format=github
+
+      - name: Run Ruff formatter check
+        run: ruff format --check .
+
+  # ===========================================================================
+  # Type Checking with MyPy
+  # ===========================================================================
+  mypy:
+    name: Type Check (MyPy)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install mypy
+          # Install type stubs for common packages
+          pip install types-requests types-pillow types-tqdm
+
+      - name: Run MyPy on core projects
+        run: |
+          # Run mypy on each project, allowing failures for now
+          # as many ML libraries lack type annotations
+          for dir in */; do
+            if [ -f "$dir/requirements.txt" ]; then
+              echo "::group::Type checking $dir"
+              mypy "$dir" --ignore-missing-imports --no-error-summary || true
+              echo "::endgroup::"
+            fi
+          done
+        continue-on-error: true
+
+  # ===========================================================================
+  # Pre-commit Hooks
+  # ===========================================================================
+  pre-commit:
+    name: Pre-commit Hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
+          restore-keys: |
+            pre-commit-
+
+      - name: Run pre-commit on all files
+        run: pre-commit run --all-files --show-diff-on-failure

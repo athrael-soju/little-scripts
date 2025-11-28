@@ -1,0 +1,262 @@
+# Root pyproject.toml for little-scripts monorepo
+# This file provides shared configuration for all Python tools across projects
+
+[project]
+name = "little-scripts"
+version = "0.1.0"
+description = "A collection of AI/ML utility scripts and microservices"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.0.0",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.23.0",
+    "mypy>=1.8.0",
+    "ruff>=0.3.5",
+]
+
+# =============================================================================
+# Ruff Configuration
+# =============================================================================
+[tool.ruff]
+# Target Python 3.10+
+target-version = "py310"
+
+# Line length to match common standards
+line-length = 88
+
+# Exclude common non-source directories
+exclude = [
+    ".git",
+    ".github",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    "venv",
+    "env",
+    ".env",
+    "node_modules",
+    "models",  # ML model files
+]
+
+[tool.ruff.lint]
+# Enable common rule sets
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
+
+# Ignore rules that conflict with formatter or are too strict
+ignore = [
+    "E501",   # line too long (handled by formatter)
+    "B008",   # do not perform function calls in argument defaults (common in FastAPI)
+    "B905",   # zip without strict= (Python 3.10+ feature)
+    "ARG001", # unused function argument (common in callbacks/handlers)
+    "SIM108", # use ternary operator (readability preference)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.isort]
+# Group imports: standard library, third-party, local
+known-first-party = [
+    "app",
+    "core",
+    "handlers",
+    "models",
+    "services",
+    "utils",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests can have unused arguments and assertions
+"**/tests/**/*.py" = ["ARG", "S101"]
+# __init__.py files can have unused imports
+"__init__.py" = ["F401"]
+
+[tool.ruff.format]
+# Use double quotes for strings
+quote-style = "double"
+# Indent with spaces
+indent-style = "space"
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+# Auto-detect line endings
+line-ending = "auto"
+
+# =============================================================================
+# Pytest Configuration
+# =============================================================================
+[tool.pytest.ini_options]
+# Minimum pytest version
+minversion = "8.0"
+
+# Test discovery patterns
+testpaths = [
+    "tests",
+    "**/tests",
+]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+# Default options
+addopts = [
+    "-v",                      # Verbose output
+    "--tb=short",              # Short traceback format
+    "--strict-markers",        # Require marker registration
+    "-ra",                     # Show summary of all results
+    "--ignore=.venv",          # Ignore virtual environments
+    "--ignore=venv",
+    "--ignore=env",
+]
+
+# Async mode for pytest-asyncio
+asyncio_mode = "auto"
+
+# Register custom markers
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "gpu: marks tests that require GPU",
+    "api: marks tests that require external API access",
+]
+
+# Logging configuration for tests
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+# =============================================================================
+# Mypy Configuration
+# =============================================================================
+[tool.mypy]
+# Target Python version
+python_version = "3.10"
+
+# Strict mode settings (balanced for ML projects)
+warn_return_any = true
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_equality = true
+
+# Disable strict settings that are problematic for ML code
+disallow_untyped_defs = false  # Many ML libraries lack type hints
+disallow_incomplete_defs = false
+check_untyped_defs = true
+
+# Error output settings
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+
+# Import handling
+ignore_missing_imports = true  # Many ML libraries lack stubs
+follow_imports = "silent"
+
+# Exclude directories
+exclude = [
+    ".venv",
+    "venv",
+    "env",
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+# Per-module overrides for stricter checking in core code
+[[tool.mypy.overrides]]
+module = [
+    "app.*",
+    "core.*",
+    "services.*",
+]
+disallow_untyped_defs = true
+warn_return_any = true
+
+# Relaxed settings for ML/model code
+[[tool.mypy.overrides]]
+module = [
+    "models.*",
+    "handlers.*",
+]
+ignore_errors = false
+disallow_untyped_defs = false
+
+# =============================================================================
+# Coverage Configuration
+# =============================================================================
+[tool.coverage.run]
+# Enable branch coverage
+branch = true
+
+# Source directories to measure
+source = [
+    "colnomic_qdrant_rag",
+    "colqwen_fastapi",
+    "colqwen_omni",
+    "deepseek-ocr",
+    "eomt_panoptic_seg",
+    "paddleocr_vl",
+    "vidore_benchmark",
+    "z-image-turbo",
+]
+
+# Files/directories to omit
+omit = [
+    "**/tests/**",
+    "**/__pycache__/**",
+    "**/venv/**",
+    "**/.venv/**",
+    "**/env/**",
+    "**/.env",
+    "**/setup.py",
+    "**/conftest.py",
+]
+
+[tool.coverage.report]
+# Minimum coverage percentage
+fail_under = 0  # Set to desired threshold when tests are added
+
+# Exclude lines from coverage
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+# Show missing lines
+show_missing = true
+
+# Precision for coverage percentage
+precision = 2
+
+[tool.coverage.html]
+directory = "htmlcov"

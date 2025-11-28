@@ -1,0 +1,188 @@
+# =============================================================================
+# Little Scripts Monorepo - Dependency Constraints
+# =============================================================================
+# This file defines minimum/maximum version constraints for shared dependencies
+# across all projects in the monorepo.
+#
+# Usage:
+#   pip install -r project/requirements.txt -c constraints.txt
+#
+# These constraints help ensure compatibility between projects and prevent
+# version conflicts when running multiple projects in the same environment.
+# =============================================================================
+
+# =============================================================================
+# Core ML Frameworks
+# =============================================================================
+# PyTorch - Use consistent version across projects
+# Note: For CUDA 12.8 (RTX 5090), use nightly builds from pytorch.org
+torch>=2.0.0
+
+# Transformers - Core HuggingFace library
+transformers>=4.40.0
+
+# Accelerate - For distributed training and inference
+accelerate>=0.25.0
+
+# =============================================================================
+# Web Frameworks
+# =============================================================================
+# FastAPI - API framework used in multiple projects
+fastapi>=0.100.0
+
+# Uvicorn - ASGI server
+uvicorn>=0.24.0
+
+# Pydantic - Data validation (v2 required for FastAPI compatibility)
+pydantic>=2.0.0
+
+# =============================================================================
+# Image Processing
+# =============================================================================
+# Pillow - Image processing
+Pillow>=10.0.0
+
+# OpenCV - Computer vision
+opencv-python>=4.8.0
+
+# =============================================================================
+# Scientific Computing
+# =============================================================================
+# NumPy - Numerical computing
+numpy>=1.24.0
+
+# SciPy - Scientific computing
+scipy>=1.10.0
+
+# =============================================================================
+# HuggingFace Ecosystem
+# =============================================================================
+# Datasets - For loading and processing datasets
+datasets>=2.14.0
+
+# HuggingFace Hub - Model and dataset hosting
+huggingface-hub>=0.20.0
+
+# Tokenizers - Fast tokenization
+tokenizers>=0.15.0
+
+# Safetensors - Safe tensor serialization
+safetensors>=0.4.0
+
+# =============================================================================
+# API Clients
+# =============================================================================
+# OpenAI - OpenAI API client
+openai>=1.0.0
+
+# Requests - HTTP library
+requests>=2.31.0
+
+# =============================================================================
+# UI Frameworks
+# =============================================================================
+# Gradio - Web UI for ML models
+gradio>=4.0.0
+
+# =============================================================================
+# Vector Databases
+# =============================================================================
+# Qdrant - Vector database client
+qdrant-client>=1.7.0
+
+# =============================================================================
+# Utilities
+# =============================================================================
+# python-dotenv - Environment variable loading
+python-dotenv>=1.0.0
+
+# tqdm - Progress bars
+tqdm>=4.66.0
+
+# python-multipart - File upload handling for FastAPI
+python-multipart>=0.0.6
+
+# =============================================================================
+# Development Tools
+# =============================================================================
+# Ruff - Linter and formatter
+ruff>=0.3.0
+
+# pytest - Testing framework
+pytest>=8.0.0
+
+# mypy - Type checker
+mypy>=1.8.0
+
+# pre-commit - Git hooks
+pre-commit>=3.0.0
+
+# =============================================================================
+# Logging
+# =============================================================================
+# colorlog - Colored logging
+colorlog>=6.8.0
+
+# =============================================================================
+# PDF Processing
+# =============================================================================
+# pdf2image - PDF to image conversion
+pdf2image>=1.16.0
+
+# PyMuPDF - PDF processing
+pymupdf>=1.23.0
+
+# pypdf - PDF manipulation
+pypdf>=3.17.0
+
+# =============================================================================
+# Audio/Video Processing
+# =============================================================================
+# librosa - Audio analysis
+librosa>=0.10.0
+
+# moviepy - Video editing
+moviepy>=1.0.0
+
+# pydub - Audio manipulation
+pydub>=0.25.0
+
+# av - FFmpeg bindings
+av>=10.0.0
+
+# =============================================================================
+# Object Storage
+# =============================================================================
+# MinIO - S3-compatible storage client
+minio>=7.2.0
+
+# fsspec - Filesystem spec
+fsspec>=2023.9.0
+
+# =============================================================================
+# GPU Utilities
+# =============================================================================
+# nvidia-ml-py - NVIDIA GPU monitoring
+nvidia-ml-py>=12.0.0
+
+# =============================================================================
+# Data Processing
+# =============================================================================
+# einops - Tensor operations
+einops>=0.7.0
+
+# =============================================================================
+# Notes:
+# =============================================================================
+# 1. These are MINIMUM version constraints. Projects may pin specific versions
+#    in their requirements.txt for reproducibility.
+#
+# 2. For GPU-specific packages (torch, torchvision), you may need to install
+#    from specific indexes (e.g., pytorch.org) based on your CUDA version.
+#
+# 3. Some packages like paddleocr, colpali-engine, diffusers have specific
+#    installation requirements - see individual project READMEs.
+#
+# 4. Update this file when upgrading dependencies across projects to maintain
+#    consistency.
+# =============================================================================
