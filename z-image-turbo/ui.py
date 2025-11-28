@@ -117,6 +117,9 @@ def update_ui_language(lang):
     """
     t = TRANSLATIONS.get(lang, TRANSLATIONS["en"])
 
+    # Get language-specific example prompts, fallback to English
+    examples = EXAMPLE_PROMPTS.get(lang, EXAMPLE_PROMPTS["en"])
+
     # Return updates for all translatable components
     return (
         # Header markdown
@@ -147,6 +150,8 @@ def update_ui_language(lang):
         gr.update(value=t["generate_btn"]),
         # Example prompts header
         f"### {t['example_prompts']}",
+        # Example dataset with language-specific prompts
+        gr.update(samples=examples),
         # Output gallery
         gr.update(label=t["generated_images"]),
         # Seed used textbox
@@ -244,7 +249,11 @@ def create_ui(pipe, prompt_expander_instance):
                 generate_btn = gr.Button(t["generate_btn"], variant="primary")
 
                 example_header = gr.Markdown(f"### {t['example_prompts']}")
-                gr.Examples(examples=EXAMPLE_PROMPTS, inputs=prompt_input, label=None)
+                example_dataset = gr.Dataset(
+                    components=[prompt_input],
+                    samples=EXAMPLE_PROMPTS["en"],
+                    type="index",
+                )
 
             with gr.Column(scale=1):
                 output_gallery = gr.Gallery(
@@ -273,6 +282,7 @@ def create_ui(pipe, prompt_expander_instance):
                 shift,
                 generate_btn,
                 example_header,
+                example_dataset,
                 output_gallery,
                 used_seed,
             ],
@@ -286,6 +296,18 @@ def create_ui(pipe, prompt_expander_instance):
         )
 
         res_cat.change(update_res_choices, inputs=res_cat, outputs=resolution)
+
+        # Example dataset click handler
+        def select_example(evt: gr.SelectData, lang):
+            """Handle example selection based on current language."""
+            examples = EXAMPLE_PROMPTS.get(lang, EXAMPLE_PROMPTS["en"])
+            return examples[evt.index][0]
+
+        example_dataset.select(
+            select_example,
+            inputs=[current_lang],
+            outputs=[prompt_input],
+        )
 
         # Enable enhance is disabled by default
         enable_enhance = gr.State(value=False)
