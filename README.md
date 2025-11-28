@@ -182,7 +182,7 @@ A GPU-aware FastAPI service based on PaddleOCR-VL for extracting rich document s
 <details>
 <summary><strong>🎨 Z-Image-Turbo</strong></summary>
 
-A high-performance image generation application powered by the Z-Image-Turbo model with a Gradio interface for text-to-image synthesis.
+A high-performance image generation application powered by the Z-Image-Turbo model with a Gradio interface for text-to-image synthesis. Based on the [official Gradio demo](https://huggingface.co/spaces/Tongyi-MAI/Z-Image-Turbo), refactored with additional features.
 
 **What it does:**
 
@@ -190,6 +190,7 @@ A high-performance image generation application powered by the Z-Image-Turbo mod
 - 📐 **Multiple Resolutions**: Support for 20+ resolution options across 1024px and 1280px bases with various aspect ratios
 - ✨ **Prompt Enhancement**: AI-powered prompt expansion via Qwen API for better image generation
 - ⚡ **Performance Optimization**: Automatic Flash Attention 2/3 detection and optional PyTorch compilation
+- 🌐 **Multi-Language UI**: Interface available in English, Chinese, Korean, Spanish, Japanese, French, German, and Portuguese
 
 **Quick Start:**
 

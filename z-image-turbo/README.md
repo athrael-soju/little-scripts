@@ -2,12 +2,15 @@
 
 A high-performance image generation application powered by the Z-Image-Turbo model with a Gradio interface for text-to-image synthesis.
 
+> **Note**: This project is based on the [official Gradio demo](https://huggingface.co/spaces/Tongyi-MAI/Z-Image-Turbo) from [Tongyi-MAI/Z-Image-Turbo](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo), refactored into a modular structure with additional features like multi-language UI support.
+
 ## Features
 
 - **Text-to-Image Generation**: Generate high-quality images from text prompts using the Z-Image-Turbo diffusion transformer model
 - **Multiple Resolutions**: Support for 20+ resolution options across 1024px and 1280px bases with various aspect ratios (1:1, 4:3, 3:2, 16:9, 21:9, and more)
 - **Prompt Enhancement**: AI-powered prompt expansion via Qwen API for better image generation
 - **Performance Optimization**: Automatic Flash Attention 2/3 detection and optional PyTorch compilation
+- **Multi-Language UI**: Interface available in English, Chinese, Korean, Spanish, Japanese, French, German, and Portuguese
 - **Clean Web Interface**: Intuitive Gradio-based UI with preset example prompts
 
 ## Requirements
@@ -127,6 +130,7 @@ z-image-turbo/
 ├── generator.py        # Image synthesis logic
 ├── prompt_expander.py  # AI prompt enhancement
 ├── ui.py               # Gradio interface components
+├── translations.py     # Multi-language UI translations
 ├── utils.py            # Utility functions
 ├── pe.py               # Prompt engineering template
 ├── requirements.txt    # Python dependencies
@@ -137,6 +141,7 @@ z-image-turbo/
 
 ## Attribution
 
+- **Based on**: [Official Gradio Demo](https://huggingface.co/spaces/Tongyi-MAI/Z-Image-Turbo) (refactored with additional features)
 - **Model**: [Tongyi-MAI/Z-Image-Turbo](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
 - **UI Framework**: [Gradio](https://gradio.app/)
 - **Backend**: [Diffusers](https://github.com/huggingface/diffusers)
