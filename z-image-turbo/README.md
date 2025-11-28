@@ -30,10 +30,8 @@ A high-performance image generation application powered by the Z-Image-Turbo mod
 2. **Create and activate a virtual environment:**
 
    ```bash
-   python -m venv .venv
+   uv venv
    source .venv/bin/activate  # Linux/macOS
-   # or
-   .venv\Scripts\activate     # Windows
    ```
 
 3. **Install dependencies:**
@@ -45,7 +43,7 @@ A high-performance image generation application powered by the Z-Image-Turbo mod
 4. **Optional: Install Flash Attention for faster inference:**
 
    ```bash
-   bash install_flash_attn.sh
+   bash install_.sh
    ```
 
 5. **Configure environment variables:**
@@ -135,7 +133,7 @@ z-image-turbo/
 ├── pe.py               # Prompt engineering template
 ├── requirements.txt    # Python dependencies
 ├── .env.example        # Configuration template
-├── install_flash_attn.sh # Flash Attention installer
+├── install.sh          # Flash Attention installer
 └── .gitignore          # Git ignore rules
 ```
 
