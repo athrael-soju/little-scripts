@@ -14,7 +14,7 @@ def generate_image(
     guidance_scale=5.0,
     num_inference_steps=50,
     shift=3.0,
-    max_sequence_length=512,
+    max_sequence_length=1024,
     progress=gr.Progress(track_tqdm=True),
 ):
     """
