@@ -9,8 +9,8 @@ LANGUAGES = {
 # Translation dictionary
 TRANSLATIONS = {
     "en": {
-        "title": "Z-Image Generation Demo",
-        "subtitle": "An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer",
+        "title": "Z-Image Turbo",
+        "subtitle": "Fast AI Image Generation",
         "prompt_label": "Prompt",
         "prompt_placeholder": "Enter your prompt here...",
         "resolution_category": "Resolution Category",
@@ -27,8 +27,8 @@ TRANSLATIONS = {
         "model_not_loaded": "Model not loaded.",
     },
     "zh": {
-        "title": "Z-Image 图像生成演示",
-        "subtitle": "基于单流扩散Transformer的高效图像生成基础模型",
+        "title": "Z-Image Turbo",
+        "subtitle": "快速 AI 图像生成",
         "prompt_label": "提示词",
         "prompt_placeholder": "在此输入您的提示词...",
         "resolution_category": "分辨率类别",

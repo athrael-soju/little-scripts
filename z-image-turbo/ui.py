@@ -127,7 +127,7 @@ def update_ui_language(lang):
 
 # {t['title']}
 
-[![GitHub](https://img.shields.io/badge/GitHub-Z--Image-181717?logo=github&logoColor=white)](https://github.com/Tongyi-MAI/Z-Image)
+[![GitHub](https://img.shields.io/badge/GitHub-little--scripts-181717?logo=github&logoColor=white)](https://github.com/athrael-soju/little-scripts)
 
 *{t['subtitle']}*
 
@@ -174,7 +174,7 @@ def create_ui(pipe, prompt_expander_instance):
     initial_lang = "en"
     t = TRANSLATIONS[initial_lang]
 
-    with gr.Blocks(title="Z-Image Demo") as demo:
+    with gr.Blocks(title="Z-Image Turbo") as demo:
         # Language selector at the top
         with gr.Row():
             with gr.Column(scale=4):
@@ -195,7 +195,7 @@ def create_ui(pipe, prompt_expander_instance):
 
 # {t['title']}
 
-[![GitHub](https://img.shields.io/badge/GitHub-Z--Image-181717?logo=github&logoColor=white)](https://github.com/Tongyi-MAI/Z-Image)
+[![GitHub](https://img.shields.io/badge/GitHub-little--scripts-181717?logo=github&logoColor=white)](https://github.com/athrael-soju/little-scripts)
 
 *{t['subtitle']}*
 
