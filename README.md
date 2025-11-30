@@ -37,6 +37,82 @@ uvicorn app:app --host 0.0.0.0 --port 7000 --reload
 </details>
 
 <details>
+<summary><strong>🔍 ColModernVBert FastAPI Service</strong></summary>
+
+A high-performance FastAPI service for generating embeddings from images and text queries using the ColModernVBert model from the ColPali engine.
+
+**Key Features:**
+
+- 🖼️ Generate embeddings for images with automatic boundary detection
+- 📝 Create embeddings for text queries optimized for retrieval
+- 🧩 Calculate patch dimensions for image sizes
+- 🔬 Generate interpretability maps showing query-document token correspondence
+- ⚡ GPU acceleration with Flash Attention 2 support
+- 🔄 Built-in service restart endpoint for container orchestration
+- 🏥 Comprehensive health monitoring and model information
+
+**Quick Start:**
+
+```bash
+cd colmodernvbert_fastapi
+pip install -r requirements.txt
+python main.py
+```
+
+**Docker:**
+
+```bash
+cd colmodernvbert_fastapi
+docker compose up --build
+```
+
+[📖 View Full Documentation](./colmodernvbert_fastapi/README.md)
+
+</details>
+
+<details>
+<summary><strong>🗄️ DuckDB Analytics FastAPI Service</strong></summary>
+
+A lightweight FastAPI service providing columnar analytics storage for OCR data using DuckDB. Designed to work seamlessly with document processing pipelines.
+
+**What it does:**
+
+- 📄 **Document Management**: Store and retrieve document metadata with versioning
+- 📊 **Page-Level Storage**: Efficient storage of OCR results with full text and markdown
+- 🎯 **Region Tracking**: Store structured bounding boxes and content for document regions
+- 🔍 **Full-Text Search**: Fast text search across all indexed documents
+- 💾 **Custom Queries**: Execute read-only SQL queries for analytics
+- 🏗️ **Maintenance API**: Initialize, clear, or reset database storage
+
+**Key technical features:**
+
+- Columnar storage with DuckDB for analytical queries
+- Automatic data compression (3-5x typical ratio)
+- Read-only query API with security filters
+- Integration-ready for OCR pipelines
+- Request tracking and performance monitoring
+
+**Quick Start:**
+
+```bash
+cd duckdb_fastapi
+cp .env.example .env
+pip install -r requirements.txt
+python main.py
+```
+
+**Docker:**
+
+```bash
+cd duckdb_fastapi
+docker compose up -d
+```
+
+[📖 View Full Documentation](./duckdb_fastapi/README.md)
+
+</details>
+
+<details>
 <summary><strong>🎵 ColQwen2.5-Omni Audio RAG System</strong></summary>
 
 An Audio Retrieval-Augmented Generation (RAG) app that combines ColQwen2.5-Omni multimodal model with OpenAI's GPT-4 audio capabilities for intelligent audio content analysis.
@@ -241,10 +317,14 @@ More utility scripts and tools will be added to this monorepo over time. Each pr
 
 ```
 little-scripts/
+├── colqwen_fastapi/               # ColQwen2.5 FastAPI embedding service
+├── colmodernvbert_fastapi/        # ColModernVBert FastAPI embedding service
+├── duckdb_fastapi/                # DuckDB analytics service for OCR data
 ├── colqwen_omni/                  # Audio RAG system with ColQwen2.5-Omni
 ├── colnomic_qdrant_rag/           # Multimodal document retrieval system
 ├── eomt_panoptic_seg/             # Image segmentation web app
 ├── deepseek-ocr/                  # FastAPI wrapper for DeepSeek-OCR
+├── paddleocr_vl/                  # PaddleOCR-VL FastAPI service
 ├── vidore_benchmark/              # ViDoRe benchmark runner
 ├── z-image-turbo/                 # Z-Image-Turbo text-to-image generation
 └── [future-projects]/             # Additional projects will be added here
@@ -459,17 +539,24 @@ Open source - feel free to use and modify as needed.
 ## 🏷️ Repository Topics
 
 - **ai-tools**
+- **analytics**
 - **audio-processing**
 - **automation**
+- **colmodernvbert**
 - **colpali**
 - **colqwen**
 - **computer-vision**
 - **diffusion-models**
+- **document-processing**
 - **document-retrieval**
+- **duckdb**
+- **embeddings**
+- **fastapi**
 - **gradio**
 - **image-generation**
 - **machine-learning**
 - **multimodal-search**
+- **ocr**
 - **openai-api**
 - **panoptic-segmentation**
 - **python**
