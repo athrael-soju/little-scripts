@@ -1,0 +1,42 @@
+# ColPali Standalone - Development/Testing
+# Run this service in isolation for development
+#
+# Usage:
+#   docker compose up       - Start ColPali service
+#   docker compose logs -f  - View logs
+#   docker compose down     - Stop service
+
+services:
+  colpali:
+    container_name: colpali-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: colpali:dev
+    ports:
+      - "7000:7000"
+    env_file:
+      - .env
+    environment:
+      - HUGGINGFACE_HUB_CACHE=/data/hf-cache
+      - HF_HOME=/data/hf-cache
+    volumes:
+      - hf_cache:/data/hf-cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    # GPU support - gracefully ignored if no GPU available
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  hf_cache:
