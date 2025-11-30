@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+duckdb==1.4.1
+pydantic
+python-multipart
