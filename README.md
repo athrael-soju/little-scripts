@@ -285,6 +285,33 @@ python app.py
 </details>
 
 <details>
+<summary><strong>🔍 ColQwen3.5-4B Visual Document Retrieval</strong></summary>
+
+A Gradio-based visual document retrieval app powered by ColQwen3.5-4.5B and colpali-engine. Upload document pages (images or PDFs), index them once, then run multiple text queries to find the most relevant pages using ColBERT-style MaxSim scoring.
+
+**Key Features:**
+
+- 📄 PDF & image support (up to 100 pages, rendered at 150 DPI)
+- ⚡ Index-then-search: encode documents once, query repeatedly
+- 🔢 Batched encoding with streaming progress
+- 🎯 Top-K result selection (1-5 pages)
+- 🧠 ColBERT-style multi-vector late interaction retrieval
+- 🎨 Modern Gradio 6 UI with sidebar controls
+
+**Quick Start:**
+
+```bash
+cd colqwen3.5-4B
+uv venv .venv --python 3.12 && source .venv/bin/activate
+uv pip install -r requirements.txt
+HF_TOKEN=your_token python app.py
+```
+
+[📖 View Full Documentation](./colqwen3.5-4B/README.md)
+
+</details>
+
+<details>
 <summary><strong>🔧 Future Projects</strong></summary>
 
 More utility scripts and tools will be added to this monorepo over time. Each project will have its own directory with dedicated documentation.
@@ -327,6 +354,7 @@ little-scripts/
 ├── paddleocr_vl/                  # PaddleOCR-VL FastAPI service
 ├── vidore_benchmark/              # ViDoRe benchmark runner
 ├── z-image-turbo/                 # Z-Image-Turbo text-to-image generation
+├── colqwen3.5-4B/                 # ColQwen3.5 visual document retrieval
 └── [future-projects]/             # Additional projects will be added here
 ```
 

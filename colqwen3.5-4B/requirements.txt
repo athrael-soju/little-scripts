@@ -1,0 +1,9 @@
+torch>=2.4.0
+gradio>=5.0.0
+transformers>=5.0.0
+peft>=0.18.0
+accelerate>=1.1.0
+colpali-engine @ git+https://github.com/illuin-tech/colpali.git
+flash-linear-attention
+Pillow
+pymupdf
